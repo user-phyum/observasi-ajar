@@ -783,6 +783,14 @@ function doPost(e) {
       populateDropdowns();
       setDefaultDateTime();
       loadDataFromSheet();
+
+      // Set up periodic sync every 20 seconds for instant responsiveness
+      setInterval(() => {
+        const activeTab = document.querySelector('.tab-content:not(.hidden)');
+        if (activeTab && (activeTab.id === 'rekap-tab' || activeTab.id === 'stats-tab')) {
+          loadDataFromSheet(true); // Silent background refresh
+        }
+      }, 20000);
     });
 
     // Helper function to parse CSV format
@@ -825,61 +833,90 @@ function doPost(e) {
       return lines;
     }
 
-    // Load Live Data directly from Google Sheet
-    async function loadDataFromSheet() {
+    // Load Live Data directly from Google Sheet with No-Cache & AppsScript Read Fallback
+    async function loadDataFromSheet(isSilent = false) {
       const iconRekap = document.getElementById('refresh-icon-rekap');
       const iconStats = document.getElementById('refresh-icon-stats');
-      if (iconRekap) iconRekap.classList.add('fa-spin');
-      if (iconStats) iconStats.classList.add('fa-spin');
+      
+      if (!isSilent) {
+        if (iconRekap) iconRekap.classList.add('fa-spin');
+        if (iconStats) iconStats.classList.add('fa-spin');
+      }
 
+      let fetchedData = null;
+
+      // Method 1: Try reading directly from Apps Script Web App (0 seconds cache delay)
       try {
-        const response = await fetch(SPREADSHEET_CSV_URL + '&t=' + Date.now());
-        if (response.ok) {
-          const csvText = await response.text();
-          const rows = parseCSV(csvText);
-
-          if (rows.length > 1) {
-            const parsed = [];
-            // Skip Header row (index 0)
-            for (let i = 1; i < rows.length; i++) {
-              const r = rows[i];
-              if (!r || r.length < 4) continue;
-
-              parsed.push({
-                id: i,
-                timestamp: r[0] || '',
-                email: r[1] || '',
-                tanggalJam: r[2] || '',
-                matakuliah: r[3] || '',
-                offering: r[4] || '',
-                q1: (r[5] || 'TIDAK').toUpperCase(),
-                q2: (r[6] || 'TIDAK').toUpperCase(),
-                q3: (r[7] || 'TIDAK').toUpperCase(),
-                foto: r[8] || '',
-                kendala: r[9] || '-'
-              });
-            }
-            // Reverse so newest entries appear first
-            observations = parsed.reverse();
-            saveLocalData();
-            renderRekapTable();
-            renderStats();
-            
-            if (iconRekap) iconRekap.classList.remove('fa-spin');
-            if (iconStats) iconStats.classList.remove('fa-spin');
-            return;
+        const appsScriptRes = await fetch(APPS_SCRIPT_URL + '?action=read&t=' + Date.now(), {
+          method: 'GET',
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+        });
+        if (appsScriptRes.ok) {
+          const json = await appsScriptRes.json();
+          if (json && json.status === 'success' && Array.isArray(json.data)) {
+            fetchedData = json.data;
           }
         }
       } catch (err) {
-        console.warn("Koneksi Google Sheets langsung gagal, menggunakan cadangan penyimpanan lokal:", err);
+        // Apps Script GET disabled or blocked, fallback to direct CSV
       }
 
-      loadLocalData();
+      // Method 2: Fallback to Published CSV with strict Cache-Busting
+      if (!fetchedData) {
+        try {
+          const response = await fetch(SPREADSHEET_CSV_URL + '&t=' + Date.now() + '&r=' + Math.random(), {
+            cache: 'no-store',
+            headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+          });
+          if (response.ok) {
+            const csvText = await response.text();
+            const rows = parseCSV(csvText);
+
+            const parsed = [];
+            if (rows.length > 1) {
+              // Skip Header row (index 0)
+              for (let i = 1; i < rows.length; i++) {
+                const r = rows[i];
+                if (!r || r.length < 4 || (!r[2] && !r[3])) continue;
+
+                parsed.push({
+                  id: i,
+                  timestamp: r[0] || '',
+                  email: r[1] || '',
+                  tanggalJam: r[2] || '',
+                  matakuliah: r[3] || '',
+                  offering: r[4] || '',
+                  q1: (r[5] || 'TIDAK').toUpperCase(),
+                  q2: (r[6] || 'TIDAK').toUpperCase(),
+                  q3: (r[7] || 'TIDAK').toUpperCase(),
+                  foto: r[8] || '',
+                  kendala: r[9] || '-'
+                });
+              }
+            }
+            fetchedData = parsed;
+          }
+        } catch (err) {
+          console.warn("Koneksi Google Sheets langsung gagal:", err);
+        }
+      }
+
+      // Overwrite state completely to immediately reflect deletions/edits in Spreadsheet
+      if (fetchedData !== null) {
+        observations = fetchedData.reverse();
+        saveLocalData();
+      } else {
+        loadLocalData();
+      }
+
       renderRekapTable();
       renderStats();
 
-      if (iconRekap) iconRekap.classList.remove('fa-spin');
-      if (iconStats) iconStats.classList.remove('fa-spin');
+      if (!isSilent) {
+        if (iconRekap) iconRekap.classList.remove('fa-spin');
+        if (iconStats) iconStats.classList.remove('fa-spin');
+      }
     }
 
     // Navigation Tab Switcher
