@@ -65,7 +65,7 @@
                class="h-10 w-auto object-contain bg-white rounded-lg p-1 shadow-sm">
           <div>
             <h1 class="font-bold text-lg leading-tight">Observasi Pembelajaran</h1>
-            <p class="text-xs text-slate-400">Departemen Fisika</p>
+            <p class="text-xs text-slate-400">Jurusan / Departemen Fisika</p>
           </div>
         </div>
 
@@ -116,7 +116,7 @@
       <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden">
         <div class="bg-gradient-to-r from-sky-700 to-indigo-800 px-6 py-8 text-white">
           <div class="flex items-center space-x-3 mb-2">
-            <span class="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider">Instrumen Kendali Mutu</span>
+            <span class="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider">Instrumen Penjaminan Mutu</span>
           </div>
           <h2 class="text-2xl font-bold">Form Observasi Pelaksanaan Pembelajaran</h2>
           <p class="text-sky-100 text-sm mt-1">Silakan isi formulir pemantauan perkuliahan dengan data yang akurat.</p>
@@ -133,7 +133,7 @@
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <i class="fa-regular fa-envelope"></i>
               </span>
-              <input type="email" id="email" required placeholder=".....@um.ac.id"
+              <input type="email" id="email" required placeholder="nama@univ.ac.id"
                 class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm">
             </div>
             <p class="text-xs text-slate-500 mt-1">Wajib diisi. Catatan: Alamat email akan disimpan secara internal & disembunyikan dari tabel umum.</p>
@@ -329,13 +329,17 @@
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-md-center justify-between gap-4">
         <div>
           <h2 class="text-xl font-bold text-slate-800">Tabel Rekapitulasi Observasi</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Daftar perkuliahan yang telah diobservasi. (Alamat email pengisi disembunyikan).</p>
+          <p class="text-xs text-slate-500 mt-0.5">Daftar perkuliahan yang telah diobservasi (Tersinkronisasi langsung dengan Google Sheets. Email disembunyikan).</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <!-- Filter Dropdown -->
           <select id="rekap-filter-mk" onchange="renderRekapTable()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500">
             <option value="ALL">Semua Mata Kuliah</option>
           </select>
+          <button onclick="loadDataFromSheet()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-all">
+            <i class="fa-solid fa-rotate" id="refresh-icon-rekap"></i>
+            <span>Segarkan Data</span>
+          </button>
           <button onclick="downloadRecapDoc()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center space-x-1.5 shadow">
             <i class="fa-solid fa-file-word"></i>
             <span>Unduh Rekap (.doc)</span>
@@ -379,9 +383,13 @@
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-md-center justify-between gap-4">
         <div>
           <h2 class="text-xl font-bold text-slate-800">Statistik Observasi Keterlaksanaan</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Analisis hasil pengisian observasi secara riil berdasarkan data spreadsheet/form.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Analisis hasil pengisian observasi secara riil berdasarkan data dari Google Sheets.</p>
         </div>
-        <div>
+        <div class="flex items-center space-x-2">
+          <button onclick="loadDataFromSheet()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-all">
+            <i class="fa-solid fa-rotate" id="refresh-icon-stats"></i>
+            <span>Segarkan Data</span>
+          </button>
           <button onclick="downloadStatsDoc()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center space-x-1.5 shadow">
             <i class="fa-solid fa-file-word"></i>
             <span>Unduh Laporan Statistik (.doc)</span>
@@ -604,7 +612,7 @@ function doPost(e) {
   <!-- Footer -->
   <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-6 mt-12 text-center text-xs">
     <div class="max-w-7xl mx-auto px-4">
-      <p>&copy; 2026 Sistem Observasi Pelaksanaan Pembelajaran. All rights reserved.</p>
+      <p>&copy; 2026 Sistem Observasi Pelaksanaan Pembelajaran Fisika. All rights reserved.</p>
     </div>
   </footer>
 
@@ -709,47 +717,53 @@ function doPost(e) {
 
     // Web App Google Apps Script Integration URL (Tertanam Langsung)
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzPceIaPaXZ5VMiusZ-JZYEVObB6GgVyCPGAPWIiXCzrGWRSfrR-jA5j9iOIgWm-H6zyw/exec";
+    
+    // Live Spreadsheet Published CSV Endpoint for direct reading
+    const SPREADSHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQP8rBd3Ym2879dMSs-6ITFp8FHmRNOpYPQgYoRMuoUU0riBIQiEOuSeWrp19Xew4twgqBUNv8SsFhm/pub?gid=781621413&single=true&output=csv";
 
     // Application State Storage
     let observations = [];
     let currentPhotoBase64 = "";
     let mediaStream = null;
 
-    window.addEventListener('DOMContentLoaded', () => {
-      populateDropdowns();
-      setDefaultDateTime();
-      loadLocalData();
-      renderRekapTable();
-      renderStats();
-    });
-
-    // Populate Options
+    // Populates all dropdown menus with predefined options (Mata Kuliah and Offering)
     function populateDropdowns() {
       const mkSelect = document.getElementById('matakuliah');
       const filterMkSelect = document.getElementById('rekap-filter-mk');
-      const offSelect = document.getElementById('offering');
+      const offeringSelect = document.getElementById('offering');
 
-      MATA_KULIAH_LIST.forEach(mk => {
-        const opt = document.createElement('option');
-        opt.value = mk;
-        opt.textContent = mk;
-        mkSelect.appendChild(opt);
+      if (mkSelect) {
+        mkSelect.innerHTML = '<option value="" disabled selected>-- Pilih Mata Kuliah --</option>';
+        MATA_KULIAH_LIST.forEach(mk => {
+          const opt = document.createElement('option');
+          opt.value = mk;
+          opt.textContent = mk;
+          mkSelect.appendChild(opt);
+        });
+      }
 
-        const filterOpt = document.createElement('option');
-        filterOpt.value = mk;
-        filterOpt.textContent = mk;
-        filterMkSelect.appendChild(filterOpt);
-      });
+      if (filterMkSelect) {
+        filterMkSelect.innerHTML = '<option value="ALL">Semua Mata Kuliah</option>';
+        MATA_KULIAH_LIST.forEach(mk => {
+          const opt = document.createElement('option');
+          opt.value = mk;
+          opt.textContent = mk;
+          filterMkSelect.appendChild(opt);
+        });
+      }
 
-      OFFERING_LIST.forEach(off => {
-        const opt = document.createElement('option');
-        opt.value = off;
-        opt.textContent = off;
-        offSelect.appendChild(opt);
-      });
+      if (offeringSelect) {
+        offeringSelect.innerHTML = '<option value="" disabled selected>-- Pilih Offering --</option>';
+        OFFERING_LIST.forEach(off => {
+          const opt = document.createElement('option');
+          opt.value = off;
+          opt.textContent = off;
+          offeringSelect.appendChild(opt);
+        });
+      }
     }
 
-    // Set Default Date & Time to current
+    // Sets default value for date and time inputs to current moment
     function setDefaultDateTime() {
       const now = new Date();
       const year = now.getFullYear();
@@ -758,8 +772,114 @@ function doPost(e) {
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
 
-      document.getElementById('tanggal').value = `${year}-${month}-${day}`;
-      document.getElementById('jam').value = `${hours}:${minutes}`;
+      const dateInput = document.getElementById('tanggal');
+      const timeInput = document.getElementById('jam');
+
+      if (dateInput) dateInput.value = `${year}-${month}-${day}`;
+      if (timeInput) timeInput.value = `${hours}:${minutes}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      populateDropdowns();
+      setDefaultDateTime();
+      loadDataFromSheet();
+    });
+
+    // Helper function to parse CSV format
+    function parseCSV(text) {
+      const lines = [];
+      let row = [];
+      let inQuotes = false;
+      let entry = '';
+
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        const nextC = text[i + 1];
+
+        if (c === '"') {
+          if (inQuotes && nextC === '"') {
+            entry += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (c === ',' && !inQuotes) {
+          row.push(entry.trim());
+          entry = '';
+        } else if ((c === '\r' || c === '\n') && !inQuotes) {
+          if (c === '\r' && nextC === '\n') i++;
+          row.push(entry.trim());
+          if (row.length > 1 || row[0] !== '') {
+            lines.push(row);
+          }
+          row = [];
+          entry = '';
+        } else {
+          entry += c;
+        }
+      }
+      if (entry || row.length > 0) {
+        row.push(entry.trim());
+        lines.push(row);
+      }
+      return lines;
+    }
+
+    // Load Live Data directly from Google Sheet
+    async function loadDataFromSheet() {
+      const iconRekap = document.getElementById('refresh-icon-rekap');
+      const iconStats = document.getElementById('refresh-icon-stats');
+      if (iconRekap) iconRekap.classList.add('fa-spin');
+      if (iconStats) iconStats.classList.add('fa-spin');
+
+      try {
+        const response = await fetch(SPREADSHEET_CSV_URL + '&t=' + Date.now());
+        if (response.ok) {
+          const csvText = await response.text();
+          const rows = parseCSV(csvText);
+
+          if (rows.length > 1) {
+            const parsed = [];
+            // Skip Header row (index 0)
+            for (let i = 1; i < rows.length; i++) {
+              const r = rows[i];
+              if (!r || r.length < 4) continue;
+
+              parsed.push({
+                id: i,
+                timestamp: r[0] || '',
+                email: r[1] || '',
+                tanggalJam: r[2] || '',
+                matakuliah: r[3] || '',
+                offering: r[4] || '',
+                q1: (r[5] || 'TIDAK').toUpperCase(),
+                q2: (r[6] || 'TIDAK').toUpperCase(),
+                q3: (r[7] || 'TIDAK').toUpperCase(),
+                foto: r[8] || '',
+                kendala: r[9] || '-'
+              });
+            }
+            // Reverse so newest entries appear first
+            observations = parsed.reverse();
+            saveLocalData();
+            renderRekapTable();
+            renderStats();
+            
+            if (iconRekap) iconRekap.classList.remove('fa-spin');
+            if (iconStats) iconStats.classList.remove('fa-spin');
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Koneksi Google Sheets langsung gagal, menggunakan cadangan penyimpanan lokal:", err);
+      }
+
+      loadLocalData();
+      renderRekapTable();
+      renderStats();
+
+      if (iconRekap) iconRekap.classList.remove('fa-spin');
+      if (iconStats) iconStats.classList.remove('fa-spin');
     }
 
     // Navigation Tab Switcher
@@ -776,6 +896,10 @@ function doPost(e) {
       if (activeBtn) {
         activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800');
         activeBtn.classList.add('bg-sky-600', 'text-white');
+      }
+
+      if (tabId === 'rekap-tab' || tabId === 'stats-tab') {
+        loadDataFromSheet();
       }
 
       // Stop camera if user switches away from form
@@ -946,16 +1070,13 @@ function doPost(e) {
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalBtnHTML;
 
-      showToast("Data observasi berhasil disimpan!", "success");
+      showToast("Data observasi berhasil dikirim ke Google Spreadsheet!", "success");
 
-      // Update Table & Stats
-      renderRekapTable();
-      renderStats();
-
-      // Switch to rekap tab to view submitted data
+      // Reload live data from spreadsheet after brief delay for Google Apps Script to commit row
       setTimeout(() => {
+        loadDataFromSheet();
         switchTab('rekap-tab');
-      }, 800);
+      }, 1500);
     }
 
     // Local Data Storage Management
