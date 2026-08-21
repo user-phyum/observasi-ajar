@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Observasi Pelaksanaan Pembelajaran</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col">
+
+  <!-- Header Navigasi -->
+  <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-3">
+          <img src="https://upload.wikimedia.org/wikipedia/id/thumb/7/73/Lambang_Universitas_Negeri_Malang.jpg/1280px-Lambang_Universitas_Negeri_Malang.jpg?utm_source=id.wikipedia.org&utm_campaign=index&utm_content=thumbnail&_=20171123143359" 
+               alt="Logo Universitas Negeri Malang" 
+               class="h-10 w-auto object-contain bg-white rounded-lg p-1 shadow-sm">
+          <div>
+            <h1 class="font-bold text-lg leading-tight">Observasi Pembelajaran</h1>
+            <p class="text-xs text-slate-400">Departemen Fisika</p>
+          </div>
+        </div>
+
+        <!-- Desktop Menu Navigasi -->
+        <nav class="hidden md:flex space-x-1">
+          <button onclick="switchTab('form-tab')" id="nav-form-tab" class="nav-btn active flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium bg-sky-600 text-white transition-all">
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span>Form Observasi</span>
+          </button>
+          <button onclick="switchTab('rekap-tab')" id="nav-rekap-tab" class="nav-btn flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+            <i class="fa-solid fa-table-list"></i>
+            <span>Rekap Data</span>
+          </button>
+          <button onclick="switchTab('stats-tab')" id="nav-stats-tab" class="nav-btn flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+            <i class="fa-solid fa-chart-column"></i>
+            <span>Statistik</span>
+          </button>
+        </nav>
+
+        <!-- Mobile Menu Toggle -->
+        <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 hover:text-white focus:outline-none p-2">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigasi Mobile -->
+    <div id="mobile-menu" class="hidden md:hidden bg-slate-800 px-4 pt-2 pb-4 space-y-1 border-t border-slate-700">
+      <button onclick="switchTab('form-tab'); toggleMobileMenu()" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-slate-700">
+        <i class="fa-solid fa-pen-to-square w-5"></i><span>Form Observasi</span>
+      </button>
+      <button onclick="switchTab('rekap-tab'); toggleMobileMenu()" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700">
+        <i class="fa-solid fa-table-list w-5"></i><span>Rekap Data</span>
+      </button>
+      <button onclick="switchTab('stats-tab'); toggleMobileMenu()" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700">
+        <i class="fa-solid fa-chart-column w-5"></i><span>Statistik</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- Toast Notification Banner -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- ================= TAB 1: FORM OBSERVASI ================= -->
+    <section id="form-tab" class="tab-content block">
+      <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden">
+        <div class="bg-gradient-to-r from-sky-700 to-indigo-800 px-6 py-8 text-white">
+          <div class="flex items-center space-x-3 mb-2">
+            <span class="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider">Instrumen Kendali Mutu</span>
+          </div>
+          <h2 class="text-2xl font-bold">Form Observasi Pelaksanaan Pembelajaran</h2>
+          <p class="text-sky-100 text-sm mt-1">Silakan isi formulir pemantauan perkuliahan dengan data yang akurat.</p>
+        </div>
+
+        <form id="observation-form" onsubmit="handleFormSubmit(event)" class="p-6 sm:p-8 space-y-6">
+
+          <!-- Email Input -->
+          <div>
+            <label for="email" class="block text-sm font-semibold text-slate-700 mb-1">
+              Email Pengamat <span class="text-rose-500">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <i class="fa-regular fa-envelope"></i>
+              </span>
+              <input type="email" id="email" required placeholder=".....@um.ac.id"
+                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm">
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Wajib diisi. Catatan: Alamat email akan disimpan secara internal & disembunyikan dari tabel umum.</p>
+          </div>
+
+          <!-- Tanggal & Jam Perkuliahan -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="tanggal" class="block text-sm font-semibold text-slate-700 mb-1">
+                Tanggal Perkuliahan <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <input type="date" id="tanggal" required
+                  class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm">
+              </div>
+            </div>
+            <div>
+              <label for="jam" class="block text-sm font-semibold text-slate-700 mb-1">
+                Jam Perkuliahan <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <input type="time" id="jam" required
+                  class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm">
+              </div>
+            </div>
+          </div>
+
+          <!-- Nama Mata Kuliah Dropdown -->
+          <div>
+            <label for="matakuliah" class="block text-sm font-semibold text-slate-700 mb-1">
+              Nama Mata Kuliah <span class="text-rose-500">*</span>
+            </label>
+            <div class="relative">
+              <select id="matakuliah" required
+                class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm appearance-none pr-10">
+                <option value="" disabled selected>-- Pilih Mata Kuliah --</option>
+                <!-- Populated via script or standard options -->
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nama Offering Dropdown -->
+          <div>
+            <label for="offering" class="block text-sm font-semibold text-slate-700 mb-1">
+              Nama Offering <span class="text-rose-500">*</span>
+            </label>
+            <div class="relative">
+              <select id="offering" required
+                class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm appearance-none pr-10">
+                <option value="" disabled selected>-- Pilih Offering --</option>
+                <!-- Populated via JS -->
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pertanyaan Evaluasi -->
+          <div class="border-t border-b border-slate-200 py-6 space-y-6">
+            <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+              <i class="fa-solid fa-list-check text-sky-600"></i>
+              <span>Item Observasi Keterlaksanaan</span>
+            </h3>
+
+            <!-- Q1 -->
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/60">
+              <p class="text-sm font-medium text-slate-800 mb-3">
+                1. Perkuliahan dilaksanakan pada hari dan waktu sesuai jadwal. <span class="text-rose-500">*</span>
+              </p>
+              <div class="flex items-center space-x-6">
+                <label class="inline-flex items-center space-x-2 cursor-pointer">
+                  <input type="radio" name="q1" value="YA" required class="w-4 h-4 text-sky-600 focus:ring-sky-500">
+                  <span class="text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-200">YA</span>
+                </label>
+                <label class="inline-flex items-center space-x-2 cursor-pointer">
+                  <input type="radio" name="q1" value="TIDAK" class="w-4 h-4 text-sky-600 focus:ring-sky-500">
+                  <span class="text-sm font-semibold text-rose-700 bg-rose-50 px-3 py-1 rounded-md border border-rose-200">TIDAK</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/60">
+              <p class="text-sm font-medium text-slate-800 mb-3">
+                2. Dosen hadir dan memulai perkuliahan paling lambat 15 menit. <span class="text-rose-500">*</span>
+              </p>
+              <div class="flex items-center space-x-6">
+                <label class="inline-flex items-center space-x-2 cursor-pointer">
+                  <input type="radio" name="q2" value="YA" required class="w-4 h-4 text-sky-600 focus:ring-sky-500">
+                  <span class="text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-200">YA</span>
+                </label>
+                <label class="inline-flex items-center space-x-2 cursor-pointer">
+                  <input type="radio" name="q2" value="TIDAK" class="w-4 h-4 text-sky-600 focus:ring-sky-500">
+                  <span class="text-sm font-semibold text-rose-700 bg-rose-50 px-3 py-1 rounded-md border border-rose-200">TIDAK</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Q3 -->
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/60">
+              <p class="text-sm font-medium text-slate-800 mb-3">
+                3. Materi yang disampaikan sesuai dengan materi yang tercantum dalam RPS untuk pertemuan tersebut. <span class="text-rose-500">*</span>
+              </p>
+              <div class="flex items-center space-x-6">
+                <label class="inline-flex items-center space-x-2 cursor-pointer">
+                  <input type="radio" name="q3" value="YA" required class="w-4 h-4 text-sky-600 focus:ring-sky-500">
+                  <span class="text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-200">YA</span>
+                </label>
+                <label class="inline-flex items-center space-x-2 cursor-pointer">
+                  <input type="radio" name="q3" value="TIDAK" class="w-4 h-4 text-sky-600 focus:ring-sky-500">
+                  <span class="text-sm font-semibold text-rose-700 bg-rose-50 px-3 py-1 rounded-md border border-rose-200">TIDAK</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Photo Upload / Camera Access -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+              Bukti Foto / Dokumentasi Perkuliahan <span class="text-slate-400 font-normal">(Opsional)</span>
+            </label>
+
+            <!-- Mode Selector -->
+            <div class="flex space-x-2 mb-3">
+              <button type="button" onclick="setPhotoSource('upload')" id="btn-src-upload" class="flex-1 py-2 px-3 text-xs font-semibold rounded-lg border bg-sky-50 border-sky-300 text-sky-700 flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-upload"></i><span>Unggah Berkas</span>
+              </button>
+              <button type="button" onclick="setPhotoSource('camera')" id="btn-src-camera" class="flex-1 py-2 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-camera"></i><span>Gunakan Kamera</span>
+              </button>
+            </div>
+
+            <!-- Upload Container -->
+            <div id="upload-container" class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition-all cursor-pointer relative">
+              <input type="file" id="photo-file" accept="image/*" onchange="handleFileSelect(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+              <div class="space-y-1">
+                <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
+                <p class="text-xs text-slate-600 font-medium">Klik atau seret foto dokumentasi di sini</p>
+                <p class="text-[10px] text-slate-400">Format: JPG, PNG, WEBP (Maks. 5MB)</p>
+              </div>
+            </div>
+
+            <!-- Camera Container -->
+            <div id="camera-container" class="hidden flex-col items-center border border-slate-300 bg-slate-900 rounded-xl p-3 overflow-hidden">
+              <video id="camera-stream" autoplay playsinline class="w-full max-h-64 object-cover rounded-lg bg-black"></video>
+              <canvas id="camera-canvas" class="hidden"></canvas>
+              <div class="flex space-x-3 mt-3 w-full justify-center">
+                <button type="button" onclick="captureCameraPhoto()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold flex items-center space-x-1.5">
+                  <i class="fa-solid fa-circle text-xs"></i><span>Ambil Foto</span>
+                </button>
+                <button type="button" onclick="stopCamera()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-medium">
+                  Matikan Kamera
+                </button>
+              </div>
+            </div>
+
+            <!-- Preview Container -->
+            <div id="photo-preview-box" class="hidden mt-3 relative inline-block border rounded-xl overflow-hidden bg-slate-100 p-1">
+              <img id="photo-preview" src="" alt="Preview Dokumentasi" class="h-36 w-auto object-cover rounded-lg">
+              <button type="button" onclick="removePhoto()" class="absolute top-2 right-2 bg-rose-600 text-white rounded-full p-1.5 shadow-lg hover:bg-rose-700 text-xs w-6 h-6 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Kendala & Catatan -->
+          <div>
+            <label for="kendala" class="block text-sm font-semibold text-slate-700 mb-1">
+              Kendala atau Hal Penting (Perhatian Khusus)
+            </label>
+            <textarea id="kendala" rows="3" placeholder="Tuliskan jika terdapat kendala perkuliahan, sarana prasarana, atau situasi khusus..."
+              class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm"></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-2">
+            <button type="submit" id="submit-btn" class="w-full py-3.5 px-6 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-semibold rounded-xl shadow-lg shadow-sky-600/30 transition-all flex items-center justify-center space-x-2 text-base">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Kirim Hasil Observasi</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ================= TAB 2: REKAP DATA ================= -->
+    <section id="rekap-tab" class="tab-content hidden space-y-6">
+      <!-- Toolbar Header -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-md-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-800">Tabel Rekapitulasi Observasi</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Daftar perkuliahan yang telah diobservasi. (Alamat email pengisi disembunyikan).</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Filter Dropdown -->
+          <select id="rekap-filter-mk" onchange="renderRekapTable()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <option value="ALL">Semua Mata Kuliah</option>
+          </select>
+          <button onclick="downloadRecapDoc()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center space-x-1.5 shadow">
+            <i class="fa-solid fa-file-word"></i>
+            <span>Unduh Rekap (.doc)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table Container -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                <th class="p-3.5 text-center w-12">No</th>
+                <th class="p-3.5">Waktu Observasi</th>
+                <th class="p-3.5">Mata Kuliah</th>
+                <th class="p-3.5 text-center">Offering</th>
+                <th class="p-3.5 text-center">Jadwal Sesuai</th>
+                <th class="p-3.5 text-center">Tepat Waktu (&lt;15m)</th>
+                <th class="p-3.5 text-center">Sesuai RPS</th>
+                <th class="p-3.5 text-center">Foto</th>
+                <th class="p-3.5">Kendala / Catatan</th>
+              </tr>
+            </thead>
+            <tbody id="rekap-table-body" class="divide-y divide-slate-100">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div id="rekap-empty-state" class="p-12 text-center text-slate-400">
+          <i class="fa-solid fa-folder-open text-4xl mb-3 text-slate-300"></i>
+          <p class="font-medium">Belum ada data observasi yang tersimpan.</p>
+          <p class="text-xs text-slate-400 mt-1">Silakan lakukan pengisian melalui menu Form Observasi.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 3: STATISTIK ================= -->
+    <section id="stats-tab" class="tab-content hidden space-y-6">
+      <!-- Toolbar Header -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-md-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-800">Statistik Observasi Keterlaksanaan</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Analisis hasil pengisian observasi secara riil berdasarkan data spreadsheet/form.</p>
+        </div>
+        <div>
+          <button onclick="downloadStatsDoc()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center space-x-1.5 shadow">
+            <i class="fa-solid fa-file-word"></i>
+            <span>Unduh Laporan Statistik (.doc)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Key Indicators -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="p-3 bg-sky-100 text-sky-600 rounded-xl">
+            <i class="fa-solid fa-calculator text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500">Total Observasi</p>
+            <h3 id="stat-total-count" class="text-2xl font-bold text-slate-800">0</h3>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="p-3 bg-emerald-100 text-emerald-600 rounded-xl">
+            <i class="fa-solid fa-clock text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500">Kesesuaian Jadwal</p>
+            <h3 id="stat-q1-percent" class="text-2xl font-bold text-slate-800">0%</h3>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="p-3 bg-indigo-100 text-indigo-600 rounded-xl">
+            <i class="fa-solid fa-user-clock text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500">Ketepatan Dosen</p>
+            <h3 id="stat-q2-percent" class="text-2xl font-bold text-slate-800">0%</h3>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="p-3 bg-purple-100 text-purple-600 rounded-xl">
+            <i class="fa-solid fa-book-open text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500">Kesesuaian RPS</p>
+            <h3 id="stat-q3-percent" class="text-2xl font-bold text-slate-800">0%</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question Breakdown Bars -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <h3 class="font-bold text-slate-800 text-base border-b pb-3 flex items-center justify-between">
+          <span>Rincian Jawaban Per Pertanyaan</span>
+          <span id="stat-badge-total" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">0 Responden</span>
+        </h3>
+
+        <!-- Stat Item Q1 -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center text-sm font-medium">
+            <span class="text-slate-700">1. Perkuliahan dilaksanakan pada hari dan waktu sesuai jadwal</span>
+            <span id="stat-q1-counts" class="text-xs text-slate-500">0 Ya / 0 Tidak</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-4 overflow-hidden flex">
+            <div id="bar-q1-ya" class="bg-emerald-500 h-full transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold" style="width: 0%"></div>
+            <div id="bar-q1-tidak" class="bg-rose-500 h-full transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-500 font-medium">
+            <span class="text-emerald-600"><i class="fa-solid fa-square mr-1"></i>YA: <span id="val-q1-ya">0%</span></span>
+            <span class="text-rose-600"><i class="fa-solid fa-square mr-1"></i>TIDAK: <span id="val-q1-tidak">0%</span></span>
+          </div>
+        </div>
+
+        <!-- Stat Item Q2 -->
+        <div class="space-y-2 pt-2 border-t border-slate-100">
+          <div class="flex justify-between items-center text-sm font-medium">
+            <span class="text-slate-700">2. Dosen hadir dan memulai perkuliahan paling lambat 15 menit</span>
+            <span id="stat-q2-counts" class="text-xs text-slate-500">0 Ya / 0 Tidak</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-4 overflow-hidden flex">
+            <div id="bar-q2-ya" class="bg-emerald-500 h-full transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold" style="width: 0%"></div>
+            <div id="bar-q2-tidak" class="bg-rose-500 h-full transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-500 font-medium">
+            <span class="text-emerald-600"><i class="fa-solid fa-square mr-1"></i>YA: <span id="val-q2-ya">0%</span></span>
+            <span class="text-rose-600"><i class="fa-solid fa-square mr-1"></i>TIDAK: <span id="val-q2-tidak">0%</span></span>
+          </div>
+        </div>
+
+        <!-- Stat Item Q3 -->
+        <div class="space-y-2 pt-2 border-t border-slate-100">
+          <div class="flex justify-between items-center text-sm font-medium">
+            <span class="text-slate-700">3. Materi yang disampaikan sesuai dengan materi yang tercantum dalam RPS</span>
+            <span id="stat-q3-counts" class="text-xs text-slate-500">0 Ya / 0 Tidak</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-4 overflow-hidden flex">
+            <div id="bar-q3-ya" class="bg-emerald-500 h-full transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold" style="width: 0%"></div>
+            <div id="bar-q3-tidak" class="bg-rose-500 h-full transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-500 font-medium">
+            <span class="text-emerald-600"><i class="fa-solid fa-square mr-1"></i>YA: <span id="val-q3-ya">0%</span></span>
+            <span class="text-rose-600"><i class="fa-solid fa-square mr-1"></i>TIDAK: <span id="val-q3-tidak">0%</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Distribution per Course -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="font-bold text-slate-800 text-base">Sebaran Observasi Per Mata Kuliah</h3>
+        <div id="course-stats-list" class="space-y-3">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 4: SPREADSHEET VIEWER ================= -->
+    <section id="sheet-tab" class="tab-content hidden space-y-4">
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Live Google Spreadsheet</h2>
+          <p class="text-xs text-slate-500">Tampilan langsung data respons dari Google Sheets yang terhubung.</p>
+        </div>
+        <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQP8rBd3Ym2879dMSs-6ITFp8FHmRNOpYPQgYoRMuoUU0riBIQiEOuSeWrp19Xew4twgqBUNv8SsFhm/pubhtml?gid=781621413&single=true" target="_blank"
+          class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-all">
+          <span>Buka di Tab Baru</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+        </a>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[650px] w-full">
+        <iframe
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQP8rBd3Ym2879dMSs-6ITFp8FHmRNOpYPQgYoRMuoUU0riBIQiEOuSeWrp19Xew4twgqBUNv8SsFhm/pubhtml?gid=781621413&amp;single=true&amp;widget=true&amp;headers=false"
+          class="w-full h-full border-0">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- ================= TAB 5: APPS SCRIPT CODE ================= -->
+    <section id="script-tab" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
+              <i class="fa-solid fa-code text-xl"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-slate-800">Kode Google Apps Script Backend</h2>
+              <p class="text-xs text-slate-500">Gunakan kode di bawah ini pada Google Sheets Anda untuk menyimpan otomatis isian form.</p>
+            </div>
+          </div>
+          <button onclick="copyAppsScript()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-lg flex items-center space-x-1.5 shadow">
+            <i class="fa-regular fa-copy"></i>
+            <span>Salin Kode</span>
+          </button>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-800 space-y-1">
+          <p class="font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Langkah Integrasi Ke Google Sheet:</p>
+          <ol class="list-decimal pl-4 space-y-1 mt-1">
+            <li>Buka Google Spreadsheet tujuan Anda.</li>
+            <li>Klik menu <span class="font-semibold">Extensions (Ekstensi) &gt; Apps Script</span>.</li>
+            <li>Hapus semua kode default dan tempelkan (paste) kode di bawah ini.</li>
+            <li>Klik <span class="font-semibold">Deploy (Terapkan) &gt; New Deployment (Penerapan Baru)</span>.</li>
+            <li>Pilih tipe <span class="font-semibold">Web App</span>, atur <em>Who has access</em> ke <span class="font-semibold">Anyone (Siapa Saja)</span>, lalu klik Deploy.</li>
+          </ol>
+        </div>
+
+        <div class="relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+          <pre class="p-4 text-xs font-mono text-emerald-400 overflow-x-auto leading-relaxed" id="apps-script-code">
+function doPost(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Observasi') || ss.getActiveSheet();
+    
+    // Buat Header jika sheet masih kosong
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        'Timestamp',
+        'Email Pengamat',
+        'Tanggal & Jam Perkuliahan',
+        'Nama Mata Kuliah',
+        'Nama Offering',
+        '1. Sesuai Jadwal',
+        '2. Dosen Tepat Waktu (<15m)',
+        '3. Sesuai RPS',
+        'URL Foto / Dokumen',
+        'Kendala / Catatan'
+      ]);
+      sheet.getRange(1, 1, 1, 10).setFontWeight('bold').setBackground('#0284c7').setFontColor('#ffffff');
+    }
+    
+    var data = JSON.parse(e.postData.contents);
+    
+    // Tambah baris data baru
+    sheet.appendRow([
+      data.timestamp || new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}),
+      data.email || '',
+      data.tanggalJam || '',
+      data.matakuliah || '',
+      data.offering || '',
+      data.q1 || '',
+      data.q2 || '',
+      data.q3 || '',
+      data.foto || '',
+      data.kendala || ''
+    ]);
+    
+    return ContentService
+      .createTextOutput(JSON.stringify({ "status": "success", "message": "Data berhasil disimpan" }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ "status": "error", "message": error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-6 mt-12 text-center text-xs">
+    <div class="max-w-7xl mx-auto px-4">
+      <p>&copy; 2026 Sistem Observasi Pelaksanaan Pembelajaran. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Daftar Mata Kuliah Lengkap dari User
+    const MATA_KULIAH_LIST = [
+      "Antar Muka Komputer untuk Pembelajaran Fisika",
+      "Astronomi",
+      "Bahasa Inggris untuk Fisika",
+      "Bahasa Inggris untuk Pendidikan Fisika",
+      "Cahaya dan Interaksinya",
+      "Dasar-Dasar Instrumentasi Fisika",
+      "Disertasi",
+      "Elektrodinamika",
+      "Elektromagnetika",
+      "Elektronika",
+      "Elektronika II",
+      "Etika Keilmuan",
+      "Filsafat Ilmu",
+      "Fisika Atom, Inti dan Partikel",
+      "Fisika Batuan",
+      "Fisika Citra",
+      "Fisika Dasar I",
+      "Fisika Dasar III",
+      "Fisika Energi",
+      "Fisika Gunung Api dan Panas Bumi",
+      "Fisika Klasik Lanjut",
+      "Fisika Komputasi Lanjut",
+      "Fisika Kuantum",
+      "Fisika Magnetik Lanjut",
+      "Fisika Matematika I",
+      "Fisika Material",
+      "Fisika Modern",
+      "Fisika Polimer",
+      "Fisika Termal dan Statistika",
+      "Fisika untuk Biologi",
+      "Fisika Untuk Bioteknologi",
+      "Fisika untuk Pendidikan Biologi",
+      "Fisika Zat Padat",
+      "Geofisika",
+      "Geofisika Terapan",
+      "Geologi",
+      "Getaran dan Gelombang",
+      "Instrumentasi Medis",
+      "Kajian Kritis Fisika",
+      "Kajian Problematika Terkini Pendidikan Fisika",
+      "Kapita Selekta Fisika Lanjut",
+      "Karakterisasi Material",
+      "Kecerdasan Buatan dalam Fisika",
+      "Kewirausahaan dan Karier Sain",
+      "Kewirausahaan dan Karier Sains",
+      "Klimatologi",
+      "Komputasi Sistem Fisis",
+      "Komunikasi Optik",
+      "Kristalografi",
+      "Kristalografi Lanjut",
+      "Kuantum Zat Mampat",
+      "Media Pembelajaran Fisika Berbasis Lingkungan",
+      "Mekanika Klasik",
+      "Mekanika Kuantum",
+      "Mekanika Kuantum Lanjut",
+      "Mekanika Statistik",
+      "Metode Penelitian Fisika",
+      "Metode Penelitian Fisika Berbasis Lingkungan",
+      "Metodologi Penelitian dan Statistik Pendidikan Fisika",
+      "Metodologi Penelitian Kuantitatif",
+      "Nanomaterial",
+      "Nanomaterial Lanjut",
+      "Pembangunan Berkelanjutan untuk Masyarakat",
+      "Pembangunan Berkelanjutan Untuk Masyarakat",
+      "Pembelajaran Fisika",
+      "Pemodelan dan Inversi Geofisika",
+      "Pengembangan Asesmen Pendidikan Fisika",
+      "Pengembangan Karakter Fisika Peserta Didik",
+      "Pengembangan Pembelajaran Fisika Inovatif",
+      "Pengembangan Proposal Teisis",
+      "Pengembangan Proposal Tugas Akhir Doktor",
+      "Penginderaan Jarak Jauh",
+      "Perencanaan Pembelajaran Fisika",
+      "Sains Dasar Berkelanjutan (SDB)",
+      "Sensor dan Aktuator",
+      "Sensor optik",
+      "Sintesa Penelitian Pendidikan Fisika",
+      "Sintesis Material Alam Lanjut",
+      "Skripsi",
+      "Skripsi Fisika",
+      "Teori dan Psikologi Belajar Fisika",
+      "Teori Kuantum Material",
+      "Teori Relativitas",
+      "Termodinamika dan Fisika Stastistik",
+      "Termodinamika Mineral",
+      "Tesis",
+      "Tugas Akhir Magister"
+    ];
+
+    // Daftar Offering Lengkap dari User
+    const OFFERING_LIST = [
+      "A", "AB", "ABC", "AM", "B", "BD", "C", "CD", "D", "E", "G", "H", "I", "J",
+      "M", "N", "O", "P1", "P10", "P11", "P12", "P13", "P14", "P15", "P2", "P3",
+      "P4", "P5", "P6", "P7", "P8", "P9", "S", "SKRIPSI"
+    ];
+
+    // Web App Google Apps Script Integration URL (Tertanam Langsung)
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzPceIaPaXZ5VMiusZ-JZYEVObB6GgVyCPGAPWIiXCzrGWRSfrR-jA5j9iOIgWm-H6zyw/exec";
+
+    // Application State Storage
+    let observations = [];
+    let currentPhotoBase64 = "";
+    let mediaStream = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      populateDropdowns();
+      setDefaultDateTime();
+      loadLocalData();
+      renderRekapTable();
+      renderStats();
+    });
+
+    // Populate Options
+    function populateDropdowns() {
+      const mkSelect = document.getElementById('matakuliah');
+      const filterMkSelect = document.getElementById('rekap-filter-mk');
+      const offSelect = document.getElementById('offering');
+
+      MATA_KULIAH_LIST.forEach(mk => {
+        const opt = document.createElement('option');
+        opt.value = mk;
+        opt.textContent = mk;
+        mkSelect.appendChild(opt);
+
+        const filterOpt = document.createElement('option');
+        filterOpt.value = mk;
+        filterOpt.textContent = mk;
+        filterMkSelect.appendChild(filterOpt);
+      });
+
+      OFFERING_LIST.forEach(off => {
+        const opt = document.createElement('option');
+        opt.value = off;
+        opt.textContent = off;
+        offSelect.appendChild(opt);
+      });
+    }
+
+    // Set Default Date & Time to current
+    function setDefaultDateTime() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+
+      document.getElementById('tanggal').value = `${year}-${month}-${day}`;
+      document.getElementById('jam').value = `${hours}:${minutes}`;
+    }
+
+    // Navigation Tab Switcher
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-sky-600', 'text-white');
+        btn.classList.add('text-slate-300', 'hover:bg-slate-800');
+      });
+
+      const activeBtn = document.getElementById(`nav-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800');
+        activeBtn.classList.add('bg-sky-600', 'text-white');
+      }
+
+      // Stop camera if user switches away from form
+      if (tabId !== 'form-tab') {
+        stopCamera();
+      }
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    // Photo source management
+    function setPhotoSource(source) {
+      const btnUpload = document.getElementById('btn-src-upload');
+      const btnCamera = document.getElementById('btn-src-camera');
+      const uploadBox = document.getElementById('upload-container');
+      const cameraBox = document.getElementById('camera-container');
+
+      if (source === 'upload') {
+        btnUpload.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg border bg-sky-50 border-sky-300 text-sky-700 flex items-center justify-center space-x-1.5";
+        btnCamera.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center space-x-1.5";
+        uploadBox.classList.remove('hidden');
+        cameraBox.classList.add('hidden');
+        stopCamera();
+      } else {
+        btnCamera.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg border bg-sky-50 border-sky-300 text-sky-700 flex items-center justify-center space-x-1.5";
+        btnUpload.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center space-x-1.5";
+        uploadBox.classList.add('hidden');
+        cameraBox.classList.remove('hidden');
+        cameraBox.classList.add('flex');
+        startCamera();
+      }
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        showToast("Ukuran foto maksimal 5MB", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        currentPhotoBase64 = e.target.result;
+        displayPhotoPreview(currentPhotoBase64);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function startCamera() {
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+        const video = document.getElementById('camera-stream');
+        video.srcObject = mediaStream;
+      } catch (err) {
+        showToast("Tidak dapat mengakses kamera. Pastikan telah memberi izin.", "error");
+      }
+    }
+
+    function stopCamera() {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+      }
+    }
+
+    function captureCameraPhoto() {
+      const video = document.getElementById('camera-stream');
+      const canvas = document.getElementById('camera-canvas');
+      if (!video.srcObject) return;
+
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+      displayPhotoPreview(currentPhotoBase64);
+      stopCamera();
+      document.getElementById('camera-container').classList.add('hidden');
+      document.getElementById('camera-container').classList.remove('flex');
+    }
+
+    function displayPhotoPreview(src) {
+      const box = document.getElementById('photo-preview-box');
+      const img = document.getElementById('photo-preview');
+      img.src = src;
+      box.classList.remove('hidden');
+    }
+
+    function removePhoto() {
+      currentPhotoBase64 = "";
+      document.getElementById('photo-preview').src = "";
+      document.getElementById('photo-preview-box').classList.add('hidden');
+      document.getElementById('photo-file').value = "";
+    }
+
+    // Helper to format timestamp MM/DD/YYYY HH:MM:SS
+    function getFormattedTimestamp() {
+      const now = new Date();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const yyyy = now.getFullYear();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      return `${mm}/${dd}/${yyyy} ${hh}:${min}:${ss}`;
+    }
+
+    // Form Submit Handler
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById('submit-btn');
+      const originalBtnHTML = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Menyimpan...</span>`;
+
+      const email = document.getElementById('email').value.trim();
+      const tanggal = document.getElementById('tanggal').value;
+      const jam = document.getElementById('jam').value;
+      const matakuliah = document.getElementById('matakuliah').value;
+      const offering = document.getElementById('offering').value;
+      const q1 = document.querySelector('input[name="q1"]:checked')?.value || 'TIDAK';
+      const q2 = document.querySelector('input[name="q2"]:checked')?.value || 'TIDAK';
+      const q3 = document.querySelector('input[name="q3"]:checked')?.value || 'TIDAK';
+      const kendala = document.getElementById('kendala').value.trim();
+      const timestamp = getFormattedTimestamp();
+
+      const newRecord = {
+        id: Date.now(),
+        timestamp: timestamp,
+        email: email, // saved in data, hidden in table display and export
+        tanggalJam: `${tanggal} ${jam}`,
+        matakuliah: matakuliah,
+        offering: offering,
+        q1: q1,
+        q2: q2,
+        q3: q3,
+        foto: currentPhotoBase64,
+        kendala: kendala || '-'
+      };
+
+      // Save locally
+      observations.unshift(newRecord);
+      saveLocalData();
+
+      // Silent push to Apps Script backend if configured
+      try {
+        fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newRecord)
+        }).catch(() => {});
+      } catch (err) {
+        // silent fallback
+      }
+
+      // Reset Form UI
+      document.getElementById('observation-form').reset();
+      removePhoto();
+      setDefaultDateTime();
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHTML;
+
+      showToast("Data observasi berhasil disimpan!", "success");
+
+      // Update Table & Stats
+      renderRekapTable();
+      renderStats();
+
+      // Switch to rekap tab to view submitted data
+      setTimeout(() => {
+        switchTab('rekap-tab');
+      }, 800);
+    }
+
+    // Local Data Storage Management
+    function saveLocalData() {
+      try {
+        localStorage.setItem('obs_pembelajaran_data', JSON.stringify(observations));
+      } catch (e) {
+        console.error("Storage limit reached", e);
+      }
+    }
+
+    function loadLocalData() {
+      const stored = localStorage.getItem('obs_pembelajaran_data');
+      if (stored) {
+        try {
+          observations = JSON.parse(stored);
+        } catch (e) {
+          observations = [];
+        }
+      } else {
+        // Strictly empty initial state as requested by user
+        observations = [];
+      }
+    }
+
+    // Render Table (Hides Email column!)
+    function renderRekapTable() {
+      const tbody = document.getElementById('rekap-table-body');
+      const emptyState = document.getElementById('rekap-empty-state');
+      const filterMk = document.getElementById('rekap-filter-mk').value;
+
+      tbody.innerHTML = '';
+
+      let filteredData = observations;
+      if (filterMk !== 'ALL') {
+        filteredData = observations.filter(item => item.matakuliah === filterMk);
+      }
+
+      if (filteredData.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      filteredData.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition-all border-b border-slate-100";
+
+        const badgeStyle = (val) => val === 'YA' 
+          ? `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800">YA</span>`
+          : `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-800">TIDAK</span>`;
+
+        const photoTd = item.foto 
+          ? `<button onclick="previewPhotoModal('${item.foto}')" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1"><i class="fa-solid fa-image"></i><span>Lihat</span></button>`
+          : `<span class="text-slate-400 text-xs">-</span>`;
+
+        tr.innerHTML = `
+          <td class="p-3.5 text-center text-slate-500 font-medium">${index + 1}</td>
+          <td class="p-3.5 text-slate-700 whitespace-nowrap font-mono text-xs">${item.tanggalJam}</td>
+          <td class="p-3.5 font-semibold text-slate-800">${escapeHtml(item.matakuliah)}</td>
+          <td class="p-3.5 text-center font-bold text-sky-700">${escapeHtml(item.offering)}</td>
+          <td class="p-3.5 text-center">${badgeStyle(item.q1)}</td>
+          <td class="p-3.5 text-center">${badgeStyle(item.q2)}</td>
+          <td class="p-3.5 text-center">${badgeStyle(item.q3)}</td>
+          <td class="p-3.5 text-center">${photoTd}</td>
+          <td class="p-3.5 text-slate-600 max-w-xs truncate">${escapeHtml(item.kendala)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Render Real-Time Statistics (No dummy data!)
+    function renderStats() {
+      const total = observations.length;
+      document.getElementById('stat-total-count').textContent = total;
+      document.getElementById('stat-badge-total').textContent = `${total} Responden`;
+
+      if (total === 0) {
+        // Zero state
+        document.getElementById('stat-q1-percent').textContent = '0%';
+        document.getElementById('stat-q2-percent').textContent = '0%';
+        document.getElementById('stat-q3-percent').textContent = '0%';
+
+        updateBar('bar-q1-ya', 'bar-q1-tidak', 0, 0);
+        updateBar('bar-q2-ya', 'bar-q2-tidak', 0, 0);
+        updateBar('bar-q3-ya', 'bar-q3-tidak', 0, 0);
+
+        document.getElementById('stat-q1-counts').textContent = '0 Ya / 0 Tidak';
+        document.getElementById('stat-q2-counts').textContent = '0 Ya / 0 Tidak';
+        document.getElementById('stat-q3-counts').textContent = '0 Ya / 0 Tidak';
+
+        document.getElementById('val-q1-ya').textContent = '0%';
+        document.getElementById('val-q1-tidak').textContent = '0%';
+        document.getElementById('val-q2-ya').textContent = '0%';
+        document.getElementById('val-q2-tidak').textContent = '0%';
+        document.getElementById('val-q3-ya').textContent = '0%';
+        document.getElementById('val-q3-tidak').textContent = '0%';
+
+        document.getElementById('course-stats-list').innerHTML = `
+          <p class="text-xs text-slate-400 italic text-center py-6">Belum ada data untuk statistik sebaran.</p>
+        `;
+        return;
+      }
+
+      let q1Ya = 0, q2Ya = 0, q3Ya = 0;
+      const courseCounts = {};
+
+      observations.forEach(item => {
+        if (item.q1 === 'YA') q1Ya++;
+        if (item.q2 === 'YA') q2Ya++;
+        if (item.q3 === 'YA') q3Ya++;
+
+        courseCounts[item.matakuliah] = (courseCounts[item.matakuliah] || 0) + 1;
+      });
+
+      const q1Percent = Math.round((q1Ya / total) * 100);
+      const q2Percent = Math.round((q2Ya / total) * 100);
+      const q3Percent = Math.round((q3Ya / total) * 100);
+
+      document.getElementById('stat-q1-percent').textContent = `${q1Percent}%`;
+      document.getElementById('stat-q2-percent').textContent = `${q2Percent}%`;
+      document.getElementById('stat-q3-percent').textContent = `${q3Percent}%`;
+
+      document.getElementById('stat-q1-counts').textContent = `${q1Ya} Ya / ${total - q1Ya} Tidak`;
+      document.getElementById('stat-q2-counts').textContent = `${q2Ya} Ya / ${total - q2Ya} Tidak`;
+      document.getElementById('stat-q3-counts').textContent = `${q3Ya} Ya / ${total - q3Ya} Tidak`;
+
+      document.getElementById('val-q1-ya').textContent = `${q1Percent}%`;
+      document.getElementById('val-q1-tidak').textContent = `${100 - q1Percent}%`;
+      document.getElementById('val-q2-ya').textContent = `${q2Percent}%`;
+      document.getElementById('val-q2-tidak').textContent = `${100 - q2Percent}%`;
+      document.getElementById('val-q3-ya').textContent = `${q3Percent}%`;
+      document.getElementById('val-q3-tidak').textContent = `${100 - q3Percent}%`;
+
+      updateBar('bar-q1-ya', 'bar-q1-tidak', q1Percent, 100 - q1Percent);
+      updateBar('bar-q2-ya', 'bar-q2-tidak', q2Percent, 100 - q2Percent);
+      updateBar('bar-q3-ya', 'bar-q3-tidak', q3Percent, 100 - q3Percent);
+
+      // Render Course Distribution list
+      const courseListEl = document.getElementById('course-stats-list');
+      courseListEl.innerHTML = '';
+
+      Object.entries(courseCounts)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([course, count]) => {
+          const coursePct = Math.round((count / total) * 100);
+          const div = document.createElement('div');
+          div.className = "space-y-1";
+          div.innerHTML = `
+            <div class="flex justify-between text-xs font-medium text-slate-700">
+              <span class="truncate pr-2">${escapeHtml(course)}</span>
+              <span class="font-bold">${count} observasi (${coursePct}%)</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+              <div class="bg-sky-600 h-full rounded-full" style="width: ${coursePct}%"></div>
+            </div>
+          `;
+          courseListEl.appendChild(div);
+        });
+    }
+
+    function updateBar(yaId, tidakId, pctYa, pctTidak) {
+      const yaEl = document.getElementById(yaId);
+      const tidakEl = document.getElementById(tidakId);
+
+      yaEl.style.width = `${pctYa}%`;
+      yaEl.textContent = pctYa > 10 ? `${pctYa}%` : '';
+
+      tidakEl.style.width = `${pctTidak}%`;
+      tidakEl.textContent = pctTidak > 10 ? `${pctTidak}%` : '';
+    }
+
+    // Export Rekap to .doc (HTML blob technique) - Hidden email requirement respected!
+    function downloadRecapDoc() {
+      if (observations.length === 0) {
+        showToast("Tidak ada data observasi untuk diunduh.", "error");
+        return;
+      }
+
+      let tableRows = '';
+      observations.forEach((item, i) => {
+        tableRows += `
+          <tr>
+            <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${i + 1}</td>
+            <td style="padding:8px; border:1px solid #cbd5e1;">${item.tanggalJam}</td>
+            <td style="padding:8px; border:1px solid #cbd5e1;"><b>${escapeHtml(item.matakuliah)}</b></td>
+            <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${escapeHtml(item.offering)}</td>
+            <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${item.q1}</td>
+            <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${item.q2}</td>
+            <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${item.q3}</td>
+            <td style="padding:8px; border:1px solid #cbd5e1;">${escapeHtml(item.kendala)}</td>
+          </tr>
+        `;
+      });
+
+      const htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset='utf-8'>
+          <title>Rekapitulasi Observasi Pembelajaran</title>
+          <style>
+            body { font-family: 'Calibri', 'Arial', sans-serif; margin: 20px; }
+            h2 { color: #0369a1; text-align: center; margin-bottom: 5px; }
+            p.sub { text-align: center; color: #64748b; font-size: 12px; margin-top: 0; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; }
+            th { background-color: #0284c7; color: #ffffff; padding: 10px; border: 1px solid #0284c7; text-align: center; }
+          </style>
+        </head>
+        <body>
+          <h2>REKAPITULASI OBSERVASI PELAKSANAAN PEMBELAJARAN</h2>
+          <p class="sub">Dicetak pada: ${new Date().toLocaleString('id-ID')}</p>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:5%;">No</th>
+                <th style="width:15%;">Tanggal & Jam</th>
+                <th style="width:30%;">Nama Mata Kuliah</th>
+                <th style="width:10%;">Offering</th>
+                <th style="width:10%;">Sesuai Jadwal</th>
+                <th style="width:10%;">Tepat Waktu (&lt;15m)</th>
+                <th style="width:10%;">Sesuai RPS</th>
+                <th style="width:20%;">Kendala / Catatan</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+
+      downloadBlobAsDoc(htmlContent, 'Rekap_Observasi_Pembelajaran.doc');
+    }
+
+    // Export Statistik to .doc
+    function downloadStatsDoc() {
+      const total = observations.length;
+      if (total === 0) {
+        showToast("Tidak ada data statistik untuk diunduh.", "error");
+        return;
+      }
+
+      let q1Ya = 0, q2Ya = 0, q3Ya = 0;
+      observations.forEach(item => {
+        if (item.q1 === 'YA') q1Ya++;
+        if (item.q2 === 'YA') q2Ya++;
+        if (item.q3 === 'YA') q3Ya++;
+      });
+
+      const q1Pct = Math.round((q1Ya / total) * 100);
+      const q2Pct = Math.round((q2Ya / total) * 100);
+      const q3Pct = Math.round((q3Ya / total) * 100);
+
+      const htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset='utf-8'>
+          <title>Laporan Statistik Observasi</title>
+          <style>
+            body { font-family: 'Calibri', 'Arial', sans-serif; margin: 25px; line-height: 1.5; }
+            h2 { color: #075985; border-bottom: 2px solid #0284c7; padding-bottom: 5px; }
+            .box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin-bottom: 15px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+            th { background-color: #0f172a; color: #ffffff; padding: 8px; border: 1px solid #0f172a; }
+            td { padding: 8px; border: 1px solid #cbd5e1; }
+          </style>
+        </head>
+        <body>
+          <h2>LAPORAN STATISTIK OBSERVASI PEMBELAJARAN</h2>
+          <p><b>Total Responden / Perkuliahan Diobservasi:</b> ${total} Kelas</p>
+          <p><b>Tanggal Laporan Generated:</b> ${new Date().toLocaleString('id-ID')}</p>
+          
+          <h3>1. Ringkasan Keterlaksanaan Indikator Utama</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Indikator Pertanyaan Observasi</th>
+                <th>Jumlah YA</th>
+                <th>Jumlah TIDAK</th>
+                <th>Persentase Keterlaksanaan (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1. Perkuliahan dilaksanakan pada hari dan waktu sesuai jadwal.</td>
+                <td style="text-align:center;">${q1Ya}</td>
+                <td style="text-align:center;">${total - q1Ya}</td>
+                <td style="text-align:center; font-weight:bold; color:#0369a1;">${q1Pct}%</td>
+              </tr>
+              <tr>
+                <td>2. Dosen hadir dan memulai perkuliahan paling lambat 15 menit.</td>
+                <td style="text-align:center;">${q2Ya}</td>
+                <td style="text-align:center;">${total - q2Ya}</td>
+                <td style="text-align:center; font-weight:bold; color:#0369a1;">${q2Pct}%</td>
+              </tr>
+              <tr>
+                <td>3. Materi yang disampaikan sesuai dengan materi yang tercantum dalam RPS.</td>
+                <td style="text-align:center;">${q3Ya}</td>
+                <td style="text-align:center;">${total - q3Ya}</td>
+                <td style="text-align:center; font-weight:bold; color:#0369a1;">${q3Pct}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+
+      downloadBlobAsDoc(htmlContent, 'Laporan_Statistik_Observasi.doc');
+    }
+
+    function downloadBlobAsDoc(content, fileName) {
+      const blob = new Blob(['\ufeff', content], {
+        type: 'application/msword'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function showToast(message, type = "success") {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      const bgColor = type === "success" ? "bg-emerald-600" : "bg-rose-600";
+      const icon = type === "success" ? "fa-circle-check" : "fa-triangle-exclamation";
+
+      toast.className = `${bgColor} text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2 text-xs font-semibold transform transition-all duration-300 translate-y-2 opacity-0 pointer-events-auto`;
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${escapeHtml(message)}</span>`;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function copyAppsScript() {
+      const code = document.getElementById('apps-script-code').innerText;
+      const textarea = document.createElement('textarea');
+      textarea.value = code;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      showToast("Kode Apps Script berhasil disalin ke clipboard!", "success");
+    }
+
+    function previewPhotoModal(src) {
+      const modal = document.createElement('div');
+      modal.className = "fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm";
+      modal.onclick = () => modal.remove();
+      modal.innerHTML = `
+        <div class="relative max-w-2xl max-h-[90vh] bg-white rounded-2xl overflow-hidden p-2 shadow-2xl" onclick="event.stopPropagation()">
+          <button onclick="this.closest('.fixed').remove()" class="absolute top-3 right-3 bg-slate-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-slate-700">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <img src="${src}" class="max-h-[80vh] w-auto rounded-lg object-contain">
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
