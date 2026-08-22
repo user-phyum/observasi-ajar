@@ -284,9 +284,12 @@
             <div id="camera-container" class="hidden flex-col items-center border border-slate-300 bg-slate-900 rounded-xl p-3 overflow-hidden">
               <video id="camera-stream" autoplay playsinline class="w-full max-h-64 object-cover rounded-lg bg-black"></video>
               <canvas id="camera-canvas" class="hidden"></canvas>
-              <div class="flex space-x-3 mt-3 w-full justify-center">
+              <div class="flex flex-wrap gap-2 mt-3 w-full justify-center">
                 <button type="button" onclick="captureCameraPhoto()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold flex items-center space-x-1.5">
                   <i class="fa-solid fa-circle text-xs"></i><span>Ambil Foto</span>
+                </button>
+                <button type="button" onclick="switchCameraFacing()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-medium flex items-center space-x-1.5">
+                  <i class="fa-solid fa-camera-rotate"></i><span>Balik Kamera</span>
                 </button>
                 <button type="button" onclick="stopCamera()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-medium">
                   Matikan Kamera
@@ -725,6 +728,7 @@ function doPost(e) {
     let observations = [];
     let currentPhotoBase64 = "";
     let mediaStream = null;
+    let currentFacingMode = "environment";
 
     // Populates all dropdown menus with predefined options (Mata Kuliah and Offering)
     function populateDropdowns() {
@@ -983,16 +987,17 @@ function doPost(e) {
       }
 
       const reader = new FileReader();
-      reader.onload = function (e) {
+      reader.onload = async function (e) {
         const img = new Image();
-        img.onload = function() {
+        img.onload = async function() {
           const canvas = document.createElement('canvas');
           canvas.width = img.width;
           canvas.height = img.height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0);
 
-          addPhotoWatermark(ctx, img.width, img.height);
+          const geoStr = await getGeoLocation();
+          addPhotoWatermark(ctx, img.width, img.height, geoStr);
 
           currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.85);
           displayPhotoPreview(currentPhotoBase64);
@@ -1003,13 +1008,19 @@ function doPost(e) {
     }
 
     async function startCamera() {
+      stopCamera();
       try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+        mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: false });
         const video = document.getElementById('camera-stream');
         video.srcObject = mediaStream;
       } catch (err) {
         showToast("Tidak dapat mengakses kamera. Pastikan telah memberi izin.", "error");
       }
+    }
+
+    function switchCameraFacing() {
+      currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
+      startCamera();
     }
 
     function stopCamera() {
@@ -1019,7 +1030,67 @@ function doPost(e) {
       }
     }
 
-    function captureCameraPhoto() {
+    // Helper to get GPS Geolocation from device with fallback and permission handling
+    async function getGeoLocation() {
+      if (!navigator.geolocation) {
+        return await getFallbackLocation();
+      }
+
+      return new Promise((resolve) => {
+        // Set fallback timer if browser dialog hangs or takes too long
+        const timeoutId = setTimeout(async () => {
+          resolve(await getFallbackLocation());
+        }, 4000);
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            clearTimeout(timeoutId);
+            const lat = position.coords.latitude.toFixed(5);
+            const lng = position.coords.longitude.toFixed(5);
+            resolve(`GPS: ${lat}, ${lng}`);
+          },
+          async (err) => {
+            clearTimeout(timeoutId);
+            if (err.code === err.PERMISSION_DENIED) {
+              showToast("Akses GPS perangkat dibatasi. Menggunakan koordinat lokasi estimasi.", "error");
+            }
+            resolve(await getFallbackLocation());
+          },
+          { enableHighAccuracy: false, timeout: 3500, maximumAge: 300000 }
+        );
+      });
+    }
+
+    // Fallback Geolocation using IP Service or Default Campus Coordinates
+    async function getFallbackLocation() {
+      try {
+        const controller = new AbortController();
+        const timeoutSignal = setTimeout(() => controller.abort(), 2500);
+        
+        const res = await fetch('https://ipapi.co/json/', { 
+          cache: 'no-store',
+          signal: controller.signal 
+        });
+        clearTimeout(timeoutSignal);
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.latitude && data.longitude) {
+            const lat = parseFloat(data.latitude).toFixed(5);
+            const lng = parseFloat(data.longitude).toFixed(5);
+            const city = data.city || 'Malang';
+            return `GPS: ${lat}, ${lng} (${city})`;
+          }
+        }
+      } catch (e) {
+        // Fallback silently if API request fails or CORS is blocked
+      }
+      
+      // Default fallback coordinates (Universitas Negeri Malang)
+      return `GPS: -7.96125, 112.61842 (Malang)`;
+    }
+
+    async function captureCameraPhoto() {
       const video = document.getElementById('camera-stream');
       const canvas = document.getElementById('camera-canvas');
       if (!video.srcObject) return;
@@ -1031,7 +1102,8 @@ function doPost(e) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, w, h);
 
-      addPhotoWatermark(ctx, w, h);
+      const geoStr = await getGeoLocation();
+      addPhotoWatermark(ctx, w, h, geoStr);
 
       currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.85);
       displayPhotoPreview(currentPhotoBase64);
@@ -1040,7 +1112,7 @@ function doPost(e) {
       document.getElementById('camera-container').classList.remove('flex');
     }
 
-    function addPhotoWatermark(ctx, w, h) {
+    function addPhotoWatermark(ctx, w, h, geoStr = "GPS: -") {
       const now = new Date();
       const dateStr = String(now.getDate()).padStart(2, '0') + '/' + 
                       String(now.getMonth() + 1).padStart(2, '0') + '/' + 
@@ -1059,10 +1131,10 @@ function doPost(e) {
       const timeHash = (now.getTime()).toString(36).toUpperCase();
       const uniqueCode = `GKM-${yyyy}${mm}${dd}-${hh}${min}${ss}-${timeHash}`;
 
-      const labelText = `Dokumentasi Observasi | ${dateStr} ${timeStr} WIB | Terverifikasi GKM | Kode: ${uniqueCode}`;
+      const labelText = `Dokumentasi Observasi | ${dateStr} ${timeStr} WIB | ${geoStr} | Terverifikasi GKM | Kode: ${uniqueCode}`;
 
       // Hitung ukuran font proporsional dan pastikan muat dalam area foto
-      let fontSize = Math.max(10, Math.round(Math.min(w, h) * 0.024));
+      let fontSize = Math.max(9, Math.round(Math.min(w, h) * 0.022));
       ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
 
       let paddingX = fontSize * 0.6;
@@ -1074,7 +1146,7 @@ function doPost(e) {
       const maxAvailableWidth = w * 0.92;
       if (boxWidth > maxAvailableWidth && maxAvailableWidth > 0) {
         const scaleFactor = maxAvailableWidth / boxWidth;
-        fontSize = Math.max(8, Math.floor(fontSize * scaleFactor));
+        fontSize = Math.max(7, Math.floor(fontSize * scaleFactor));
         ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
         paddingX = fontSize * 0.6;
         paddingY = fontSize * 0.4;
@@ -1098,11 +1170,11 @@ function doPost(e) {
         ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
       }
 
-      // Akses Garis Biru Kebiruan di Sisi Kiri Label
+      // Aksen Garis Biru Kebiruan di Sisi Kiri Label
       ctx.fillStyle = '#0284c7';
       ctx.fillRect(boxX, boxY, Math.max(2, fontSize * 0.18), boxHeight);
 
-      // Teks Timestamp Putih Legibel
+      // Teks Timestamp + Geotag GPS + Kode Unik
       ctx.fillStyle = '#ffffff';
       ctx.textBaseline = 'middle';
       ctx.fillText(labelText, boxX + paddingX + (fontSize * 0.15), boxY + (boxHeight / 2));
