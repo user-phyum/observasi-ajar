@@ -116,7 +116,7 @@
       <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden">
         <div class="bg-gradient-to-r from-sky-700 to-indigo-800 px-6 py-8 text-white">
           <div class="flex items-center space-x-3 mb-2">
-            <span class="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider">Instrumen Kendali Mutu</span>
+            <span class="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider">Instrumen Penjaminan Mutu</span>
           </div>
           <h2 class="text-2xl font-bold">Form Observasi Pelaksanaan Pembelajaran</h2>
           <p class="text-sky-100 text-sm mt-1">Silakan isi formulir pemantauan perkuliahan dengan data yang akurat.</p>
@@ -257,7 +257,7 @@
           <!-- Photo Upload / Camera Access -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Bukti Foto / Dokumentasi Perkuliahan <span class="text-slate-400 font-normal">(Opsional)</span>
+              Bukti Foto / Dokumentasi Perkuliahan <span class="text-rose-500">*</span>
             </label>
 
             <!-- Mode Selector -->
@@ -282,7 +282,7 @@
 
             <!-- Camera Container -->
             <div id="camera-container" class="hidden flex-col items-center border border-slate-300 bg-slate-900 rounded-xl p-3 overflow-hidden">
-              <video id="camera-stream" autoplay playsinline class="w-full max-h-64 object-cover rounded-lg bg-black"></video>
+              <video id="camera-stream" autoplay playsinline class="w-full max-h-[60vh] object-contain rounded-lg bg-black transition-all"></video>
               <canvas id="camera-canvas" class="hidden"></canvas>
               <div class="flex flex-wrap gap-2 mt-3 w-full justify-center">
                 <button type="button" onclick="captureCameraPhoto()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold flex items-center space-x-1.5">
@@ -1012,7 +1012,6 @@ function doPost(e) {
     async function startCamera() {
       stopCamera();
       try {
-        // Enumerate video devices if available
         if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
           const devices = await navigator.mediaDevices.enumerateDevices();
           videoDevices = devices.filter(d => d.kind === 'videoinput');
@@ -1020,26 +1019,28 @@ function doPost(e) {
 
         let constraints = { audio: false };
 
-        // If specific devices exist, switch by deviceId; otherwise use ideal facingMode
         if (videoDevices.length > 1 && videoDevices[currentDeviceIndex]) {
           constraints.video = { 
             deviceId: { exact: videoDevices[currentDeviceIndex].deviceId },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
           };
         } else {
           constraints.video = { 
             facingMode: { ideal: currentFacingMode },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
           };
         }
 
         mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
         const video = document.getElementById('camera-stream');
         video.srcObject = mediaStream;
+
+        // Auto-adapt layout on device rotation
+        window.removeEventListener('orientationchange', handleOrientationChange);
+        window.addEventListener('orientationchange', handleOrientationChange);
       } catch (err) {
-        // Fallback constraint if exact/ideal constraint fails
         try {
           mediaStream = await navigator.mediaDevices.getUserMedia({ 
             video: { facingMode: currentFacingMode }, 
@@ -1049,7 +1050,6 @@ function doPost(e) {
           video.srcObject = mediaStream;
         } catch (e) {
           try {
-            // Absolute fallback for laptop/webcams
             mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
             const video = document.getElementById('camera-stream');
             video.srcObject = mediaStream;
@@ -1057,6 +1057,15 @@ function doPost(e) {
             showToast("Tidak dapat mengakses kamera. Pastikan telah memberi izin.", "error");
           }
         }
+      }
+    }
+
+    function handleOrientationChange() {
+      const video = document.getElementById('camera-stream');
+      if (video && video.srcObject) {
+        // Force refresh layout on screen tilt/rotate
+        video.style.display = 'none';
+        setTimeout(() => { video.style.display = 'block'; }, 50);
       }
     }
 
@@ -1166,7 +1175,6 @@ function doPost(e) {
                       String(now.getMinutes()).padStart(2, '0') + ':' + 
                       String(now.getSeconds()).padStart(2, '0');
 
-      // Generasi Kode Unik Berdasarkan Timestamp Presisi
       const yyyy = now.getFullYear();
       const mm = String(now.getMonth() + 1).padStart(2, '0');
       const dd = String(now.getDate()).padStart(2, '0');
@@ -1176,92 +1184,63 @@ function doPost(e) {
       const timeHash = (now.getTime()).toString(36).toUpperCase();
       const uniqueCode = `GKM-${yyyy}${mm}${dd}-${hh}${min}${ss}-${timeHash}`;
 
-      // Calculate baseline font size relative to image dimensions
-      let fontSize = Math.max(10, Math.round(Math.min(w, h) * 0.024));
+      // Susun 2 baris seimbang agar ramah layar portrait HP
+      const line1 = `Dokumentasi Observasi | ${dateStr} ${timeStr} WIB`;
+      const line2 = `Terverifikasi GKM | ${geoStr} | Kode: ${uniqueCode}`;
+
+      // Hitung ukuran font dasar berdasarkan rasio gambar
+      let fontSize = Math.max(10, Math.round(Math.min(w, h) * 0.026));
       ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
 
-      const line1 = `Dokumentasi Observasi | ${dateStr} ${timeStr} WIB | Terverifikasi GKM`;
-      const line2 = `${geoStr} | Kode: ${uniqueCode}`;
-      const singleLine = `${line1} | ${line2}`;
-
-      const maxAvailableWidth = w * 0.90;
+      const maxAvailableWidth = w * 0.88; // Batas aman 88% dari lebar foto
       let paddingX = fontSize * 0.6;
-      let paddingY = fontSize * 0.4;
+      let paddingY = fontSize * 0.45;
 
-      let singleWidth = ctx.measureText(singleLine).width + (paddingX * 2);
-      let useMultiLine = singleWidth > maxAvailableWidth || w < 650;
+      let w1 = ctx.measureText(line1).width;
+      let w2 = ctx.measureText(line2).width;
+      let maxTextW = Math.max(w1, w2);
+
+      // Iterative scaling loop: Turunkan font jika melebihi lebar aman foto HP portrait
+      while ((maxTextW + paddingX * 2) > maxAvailableWidth && fontSize > 8) {
+        fontSize -= 0.5;
+        ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
+        paddingX = fontSize * 0.6;
+        paddingY = fontSize * 0.45;
+        w1 = ctx.measureText(line1).width;
+        w2 = ctx.measureText(line2).width;
+        maxTextW = Math.max(w1, w2);
+      }
+
+      const boxWidth = maxTextW + (paddingX * 2);
+      const lineHeight = fontSize * 1.35;
+      const boxHeight = (lineHeight * 2) + (paddingY * 1.6);
+      const margin = Math.max(8, Math.round(fontSize * 0.6));
+      const boxX = margin;
+      const boxY = h - margin - boxHeight;
 
       ctx.save();
-      if (!useMultiLine) {
-        // Single Line layout for wide landscape images
-        let boxWidth = ctx.measureText(singleLine).width + (paddingX * 2);
-        if (boxWidth > maxAvailableWidth) {
-          fontSize = Math.max(8, Math.floor(fontSize * (maxAvailableWidth / boxWidth)));
-          ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
-          paddingX = fontSize * 0.6;
-          paddingY = fontSize * 0.4;
-          boxWidth = ctx.measureText(singleLine).width + (paddingX * 2);
-        }
-        const boxHeight = fontSize + (paddingY * 2);
-        const margin = Math.max(8, Math.round(fontSize * 0.6));
-        const boxX = margin;
-        const boxY = h - margin - boxHeight;
-
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
-        if (typeof ctx.roundRect === 'function') {
-          ctx.beginPath();
-          ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 6);
-          ctx.fill();
-        } else {
-          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-        }
-
-        ctx.fillStyle = '#0284c7';
-        ctx.fillRect(boxX, boxY, Math.max(3, fontSize * 0.2), boxHeight);
-
-        ctx.fillStyle = '#ffffff';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(singleLine, boxX + paddingX + (fontSize * 0.15), boxY + (boxHeight / 2));
+      // Latar belakang kotak watermark semi-transparan
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.90)';
+      if (typeof ctx.roundRect === 'function') {
+        ctx.beginPath();
+        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 6);
+        ctx.fill();
       } else {
-        // Multi-line layout ideal for phones / portrait photos / laptop webcams
-        let w1 = ctx.measureText(line1).width;
-        let w2 = ctx.measureText(line2).width;
-        let maxTextW = Math.max(w1, w2);
-
-        if ((maxTextW + paddingX * 2) > maxAvailableWidth) {
-          fontSize = Math.max(8, Math.floor(fontSize * (maxAvailableWidth / (maxTextW + paddingX * 2))));
-          ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
-          paddingX = fontSize * 0.6;
-          paddingY = fontSize * 0.4;
-          w1 = ctx.measureText(line1).width;
-          w2 = ctx.measureText(line2).width;
-          maxTextW = Math.max(w1, w2);
-        }
-
-        const boxWidth = maxTextW + (paddingX * 2);
-        const lineHeight = fontSize * 1.35;
-        const boxHeight = (lineHeight * 2) + (paddingY * 1.5);
-        const margin = Math.max(8, Math.round(fontSize * 0.6));
-        const boxX = margin;
-        const boxY = h - margin - boxHeight;
-
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
-        if (typeof ctx.roundRect === 'function') {
-          ctx.beginPath();
-          ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 6);
-          ctx.fill();
-        } else {
-          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-        }
-
-        ctx.fillStyle = '#0284c7';
-        ctx.fillRect(boxX, boxY, Math.max(3, fontSize * 0.2), boxHeight);
-
-        ctx.fillStyle = '#ffffff';
-        ctx.textBaseline = 'top';
-        ctx.fillText(line1, boxX + paddingX + (fontSize * 0.15), boxY + paddingY);
-        ctx.fillText(line2, boxX + paddingX + (fontSize * 0.15), boxY + paddingY + lineHeight);
+        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
       }
+
+      // Aksen garis biru brand di sisi kiri
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(boxX, boxY, Math.max(3, fontSize * 0.2), boxHeight);
+
+      // Tuliskan teks 2 baris secara rapi
+      ctx.fillStyle = '#ffffff';
+      ctx.textBaseline = 'top';
+      const textX = boxX + paddingX + (fontSize * 0.15);
+      
+      ctx.fillText(line1, textX, boxY + paddingY);
+      ctx.fillText(line2, textX, boxY + paddingY + lineHeight);
+
       ctx.restore();
     }
 
@@ -1294,6 +1273,12 @@ function doPost(e) {
     // Form Submit Handler
     async function handleFormSubmit(e) {
       e.preventDefault();
+
+      // Validasi wajib unggah/ambil foto
+      if (!currentPhotoBase64) {
+        showToast("Bukti foto / dokumentasi perkuliahan wajib diambil atau diunggah!", "error");
+        return;
+      }
 
       const submitBtn = document.getElementById('submit-btn');
       const originalBtnHTML = submitBtn.innerHTML;
