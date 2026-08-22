@@ -729,6 +729,8 @@ function doPost(e) {
     let currentPhotoBase64 = "";
     let mediaStream = null;
     let currentFacingMode = "environment";
+    let videoDevices = [];
+    let currentDeviceIndex = 0;
 
     // Populates all dropdown menus with predefined options (Mata Kuliah and Offering)
     function populateDropdowns() {
@@ -1010,16 +1012,59 @@ function doPost(e) {
     async function startCamera() {
       stopCamera();
       try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: false });
+        // Enumerate video devices if available
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          videoDevices = devices.filter(d => d.kind === 'videoinput');
+        }
+
+        let constraints = { audio: false };
+
+        // If specific devices exist, switch by deviceId; otherwise use ideal facingMode
+        if (videoDevices.length > 1 && videoDevices[currentDeviceIndex]) {
+          constraints.video = { 
+            deviceId: { exact: videoDevices[currentDeviceIndex].deviceId },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          };
+        } else {
+          constraints.video = { 
+            facingMode: { ideal: currentFacingMode },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          };
+        }
+
+        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
         const video = document.getElementById('camera-stream');
         video.srcObject = mediaStream;
       } catch (err) {
-        showToast("Tidak dapat mengakses kamera. Pastikan telah memberi izin.", "error");
+        // Fallback constraint if exact/ideal constraint fails
+        try {
+          mediaStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: currentFacingMode }, 
+            audio: false 
+          });
+          const video = document.getElementById('camera-stream');
+          video.srcObject = mediaStream;
+        } catch (e) {
+          try {
+            // Absolute fallback for laptop/webcams
+            mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            const video = document.getElementById('camera-stream');
+            video.srcObject = mediaStream;
+          } catch (finalErr) {
+            showToast("Tidak dapat mengakses kamera. Pastikan telah memberi izin.", "error");
+          }
+        }
       }
     }
 
     function switchCameraFacing() {
       currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
+      if (videoDevices.length > 1) {
+        currentDeviceIndex = (currentDeviceIndex + 1) % videoDevices.length;
+      }
       startCamera();
     }
 
@@ -1131,53 +1176,92 @@ function doPost(e) {
       const timeHash = (now.getTime()).toString(36).toUpperCase();
       const uniqueCode = `GKM-${yyyy}${mm}${dd}-${hh}${min}${ss}-${timeHash}`;
 
-      const labelText = `Dokumentasi Observasi | ${dateStr} ${timeStr} WIB | ${geoStr} | Terverifikasi GKM | Kode: ${uniqueCode}`;
-
-      // Hitung ukuran font proporsional dan pastikan muat dalam area foto
-      let fontSize = Math.max(9, Math.round(Math.min(w, h) * 0.022));
+      // Calculate baseline font size relative to image dimensions
+      let fontSize = Math.max(10, Math.round(Math.min(w, h) * 0.024));
       ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
 
+      const line1 = `Dokumentasi Observasi | ${dateStr} ${timeStr} WIB | Terverifikasi GKM`;
+      const line2 = `${geoStr} | Kode: ${uniqueCode}`;
+      const singleLine = `${line1} | ${line2}`;
+
+      const maxAvailableWidth = w * 0.90;
       let paddingX = fontSize * 0.6;
       let paddingY = fontSize * 0.4;
-      let textMetrics = ctx.measureText(labelText);
-      let boxWidth = textMetrics.width + (paddingX * 2);
 
-      // Auto-scale font jika lebar watermark melebihi 92% lebar foto
-      const maxAvailableWidth = w * 0.92;
-      if (boxWidth > maxAvailableWidth && maxAvailableWidth > 0) {
-        const scaleFactor = maxAvailableWidth / boxWidth;
-        fontSize = Math.max(7, Math.floor(fontSize * scaleFactor));
-        ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
-        paddingX = fontSize * 0.6;
-        paddingY = fontSize * 0.4;
-        textMetrics = ctx.measureText(labelText);
-        boxWidth = textMetrics.width + (paddingX * 2);
-      }
-
-      const boxHeight = fontSize + (paddingY * 2);
-      const margin = Math.max(6, Math.round(fontSize * 0.6));
-      const boxX = margin;
-      const boxY = h - margin - boxHeight;
+      let singleWidth = ctx.measureText(singleLine).width + (paddingX * 2);
+      let useMultiLine = singleWidth > maxAvailableWidth || w < 650;
 
       ctx.save();
-      // Box Background Gelap (Transparan & Rapi)
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-      if (typeof ctx.roundRect === 'function') {
-        ctx.beginPath();
-        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 4);
-        ctx.fill();
+      if (!useMultiLine) {
+        // Single Line layout for wide landscape images
+        let boxWidth = ctx.measureText(singleLine).width + (paddingX * 2);
+        if (boxWidth > maxAvailableWidth) {
+          fontSize = Math.max(8, Math.floor(fontSize * (maxAvailableWidth / boxWidth)));
+          ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
+          paddingX = fontSize * 0.6;
+          paddingY = fontSize * 0.4;
+          boxWidth = ctx.measureText(singleLine).width + (paddingX * 2);
+        }
+        const boxHeight = fontSize + (paddingY * 2);
+        const margin = Math.max(8, Math.round(fontSize * 0.6));
+        const boxX = margin;
+        const boxY = h - margin - boxHeight;
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+        if (typeof ctx.roundRect === 'function') {
+          ctx.beginPath();
+          ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 6);
+          ctx.fill();
+        } else {
+          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+        }
+
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(boxX, boxY, Math.max(3, fontSize * 0.2), boxHeight);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(singleLine, boxX + paddingX + (fontSize * 0.15), boxY + (boxHeight / 2));
       } else {
-        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+        // Multi-line layout ideal for phones / portrait photos / laptop webcams
+        let w1 = ctx.measureText(line1).width;
+        let w2 = ctx.measureText(line2).width;
+        let maxTextW = Math.max(w1, w2);
+
+        if ((maxTextW + paddingX * 2) > maxAvailableWidth) {
+          fontSize = Math.max(8, Math.floor(fontSize * (maxAvailableWidth / (maxTextW + paddingX * 2))));
+          ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
+          paddingX = fontSize * 0.6;
+          paddingY = fontSize * 0.4;
+          w1 = ctx.measureText(line1).width;
+          w2 = ctx.measureText(line2).width;
+          maxTextW = Math.max(w1, w2);
+        }
+
+        const boxWidth = maxTextW + (paddingX * 2);
+        const lineHeight = fontSize * 1.35;
+        const boxHeight = (lineHeight * 2) + (paddingY * 1.5);
+        const margin = Math.max(8, Math.round(fontSize * 0.6));
+        const boxX = margin;
+        const boxY = h - margin - boxHeight;
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+        if (typeof ctx.roundRect === 'function') {
+          ctx.beginPath();
+          ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 6);
+          ctx.fill();
+        } else {
+          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+        }
+
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(boxX, boxY, Math.max(3, fontSize * 0.2), boxHeight);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.textBaseline = 'top';
+        ctx.fillText(line1, boxX + paddingX + (fontSize * 0.15), boxY + paddingY);
+        ctx.fillText(line2, boxX + paddingX + (fontSize * 0.15), boxY + paddingY + lineHeight);
       }
-
-      // Aksen Garis Biru Kebiruan di Sisi Kiri Label
-      ctx.fillStyle = '#0284c7';
-      ctx.fillRect(boxX, boxY, Math.max(2, fontSize * 0.18), boxHeight);
-
-      // Teks Timestamp + Geotag GPS + Kode Unik
-      ctx.fillStyle = '#ffffff';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(labelText, boxX + paddingX + (fontSize * 0.15), boxY + (boxHeight / 2));
       ctx.restore();
     }
 
