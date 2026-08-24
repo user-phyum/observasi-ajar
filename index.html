@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Form Observasi Pelaksanaan Pembelajaran</title>
+  <title>Observasi Pelaksanaan Pembelajaran</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome Icons -->
@@ -32,7 +32,6 @@
     }
   </script>
   <style>
-    /* Custom scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -51,7 +50,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col">
 
-  <!-- Header Navigasi -->
   <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
@@ -66,12 +64,17 @@
         </div>
 
         <!-- Desktop Menu Navigasi -->
-        <nav class="hidden md:flex space-x-1">
-          <button onclick="switchTab('form-tab')" id="nav-form-tab" class="nav-btn active flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium bg-sky-600 text-white transition-all">
+        <nav class="hidden md:flex items-center space-x-2">
+          <!-- Tombol Link Google Forms -->
+          <a href="https://forms.gle/QPcRE5dgKinoSJzL8" target="_blank" rel="noopener noreferrer" 
+             class="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow transition-all mr-2">
             <i class="fa-solid fa-pen-to-square"></i>
-            <span>Form Observasi</span>
-          </button>
-          <button onclick="switchTab('rekap-tab')" id="nav-rekap-tab" class="nav-btn flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all">
+            <span>Isi Form Observasi</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1"></i>
+          </a>
+
+          <!-- Navigation Tabs -->
+          <button onclick="switchTab('rekap-tab')" id="nav-rekap-tab" class="nav-btn active flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium bg-sky-600 text-white transition-all">
             <i class="fa-solid fa-table-list"></i>
             <span>Rekap Data</span>
           </button>
@@ -89,11 +92,16 @@
     </div>
 
     <!-- Navigasi Mobile -->
-    <div id="mobile-menu" class="hidden md:hidden bg-slate-800 px-4 pt-2 pb-4 space-y-1 border-t border-slate-700">
-      <button onclick="switchTab('form-tab'); toggleMobileMenu()" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-slate-700">
-        <i class="fa-solid fa-pen-to-square w-5"></i><span>Form Observasi</span>
-      </button>
-      <button onclick="switchTab('rekap-tab'); toggleMobileMenu()" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700">
+    <div id="mobile-menu" class="hidden md:hidden bg-slate-800 px-4 pt-2 pb-4 space-y-2 border-t border-slate-700">
+      <a href="https://forms.gle/QPcRE5dgKinoSJzL8" target="_blank" rel="noopener noreferrer" 
+         class="w-full text-left flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-semibold bg-emerald-600 text-white">
+        <span class="flex items-center space-x-2">
+          <i class="fa-solid fa-pen-to-square w-5"></i>
+          <span>Isi Form Observasi</span>
+        </span>
+        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+      </a>
+      <button onclick="switchTab('rekap-tab'); toggleMobileMenu()" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-slate-700">
         <i class="fa-solid fa-table-list w-5"></i><span>Rekap Data</span>
       </button>
       <button onclick="switchTab('stats-tab'); toggleMobileMenu()" class="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700">
@@ -102,231 +110,37 @@
     </div>
   </header>
 
-  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
     <!-- Toast Notification Banner -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
-    <!-- ================= TAB 1: FORM OBSERVASI ================= -->
-    <section id="form-tab" class="tab-content block">
-      <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden">
-        <div class="bg-gradient-to-r from-sky-700 to-indigo-800 px-6 py-8 text-white">
-          <div class="flex items-center space-x-3 mb-2">
-            <span class="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider">Instrumen Penjaminan Mutu</span>
-          </div>
-          <h2 class="text-2xl font-bold">Form Observasi Pelaksanaan Pembelajaran</h2>
-          <p class="text-sky-100 text-sm mt-1">Silakan isi formulir pemantauan perkuliahan dengan data yang akurat.</p>
+    <!-- Banner Pintasan Form Observasi Google Forms -->
+    <div class="bg-gradient-to-r from-sky-800 via-indigo-900 to-slate-900 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="space-y-1 text-center md:text-left">
+        <div class="flex items-center justify-center md:justify-start space-x-2">
+          <span class="bg-sky-500/20 text-sky-200 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Instrumen Penjaminan Mutu</span>
         </div>
-
-        <form id="observation-form" onsubmit="handleFormSubmit(event)" class="p-6 sm:p-8 space-y-6">
-
-          <!-- Email Input -->
-          <div>
-            <label for="email" class="block text-sm font-semibold text-slate-700 mb-1">
-              Email Pengamat <span class="text-rose-500">*</span>
-            </label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <i class="fa-regular fa-envelope"></i>
-              </span>
-              <input type="email" id="email" required placeholder=".....@um.ac.id"
-                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm">
-            </div>
-            <p class="text-xs text-slate-500 mt-1">Wajib diisi. Catatan: Alamat email akan disimpan secara internal & disembunyikan dari tabel umum.</p>
-          </div>
-
-          <!-- Tanggal & Jam Perkuliahan -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label for="tanggal" class="block text-sm font-semibold text-slate-700 mb-1">
-                Tanggal Perkuliahan <span class="text-rose-500">*</span>
-              </label>
-              <div class="relative">
-                <input type="date" id="tanggal" required
-                  class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm">
-              </div>
-            </div>
-            <div>
-              <label for="jam" class="block text-sm font-semibold text-slate-700 mb-1">
-                Jam Perkuliahan <span class="text-rose-500">*</span>
-              </label>
-              <div class="relative">
-                <input type="time" id="jam" required
-                  class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm">
-              </div>
-            </div>
-          </div>
-
-          <!-- Nama Mata Kuliah Dropdown -->
-          <div>
-            <label for="matakuliah" class="block text-sm font-semibold text-slate-700 mb-1">
-              Nama Mata Kuliah <span class="text-rose-500">*</span>
-            </label>
-            <div class="relative">
-              <select id="matakuliah" required
-                class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm appearance-none pr-10">
-                <option value="" disabled selected>-- Pilih Mata Kuliah --</option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
-                <i class="fa-solid fa-chevron-down text-xs"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Nama Offering Dropdown -->
-          <div>
-            <label for="offering" class="block text-sm font-semibold text-slate-700 mb-1">
-              Nama Offering <span class="text-rose-500">*</span>
-            </label>
-            <div class="relative">
-              <select id="offering" required
-                class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm appearance-none pr-10">
-                <option value="" disabled selected>-- Pilih Offering --</option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
-                <i class="fa-solid fa-chevron-down text-xs"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pertanyaan Evaluasi -->
-          <div class="border-t border-b border-slate-200 py-6 space-y-6">
-            <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
-              <i class="fa-solid fa-list-check text-sky-600"></i>
-              <span>Item Observasi Keterlaksanaan</span>
-            </h3>
-
-            <!-- Q1 -->
-            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/60">
-              <p class="text-sm font-medium text-slate-800 mb-3">
-                1. Perkuliahan dilaksanakan pada hari dan waktu sesuai jadwal. <span class="text-rose-500">*</span>
-              </p>
-              <div class="flex items-center space-x-6">
-                <label class="inline-flex items-center space-x-2 cursor-pointer">
-                  <input type="radio" name="q1" value="YA" required class="w-4 h-4 text-sky-600 focus:ring-sky-500">
-                  <span class="text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-200">YA</span>
-                </label>
-                <label class="inline-flex items-center space-x-2 cursor-pointer">
-                  <input type="radio" name="q1" value="TIDAK" class="w-4 h-4 text-sky-600 focus:ring-sky-500">
-                  <span class="text-sm font-semibold text-rose-700 bg-rose-50 px-3 py-1 rounded-md border border-rose-200">TIDAK</span>
-                </label>
-              </div>
-            </div>
-
-            <!-- Q2 -->
-            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/60">
-              <p class="text-sm font-medium text-slate-800 mb-3">
-                2. Dosen hadir dan memulai perkuliahan paling lambat 15 menit. <span class="text-rose-500">*</span>
-              </p>
-              <div class="flex items-center space-x-6">
-                <label class="inline-flex items-center space-x-2 cursor-pointer">
-                  <input type="radio" name="q2" value="YA" required class="w-4 h-4 text-sky-600 focus:ring-sky-500">
-                  <span class="text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-200">YA</span>
-                </label>
-                <label class="inline-flex items-center space-x-2 cursor-pointer">
-                  <input type="radio" name="q2" value="TIDAK" class="w-4 h-4 text-sky-600 focus:ring-sky-500">
-                  <span class="text-sm font-semibold text-rose-700 bg-rose-50 px-3 py-1 rounded-md border border-rose-200">TIDAK</span>
-                </label>
-              </div>
-            </div>
-
-            <!-- Q3 -->
-            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/60">
-              <p class="text-sm font-medium text-slate-800 mb-3">
-                3. Materi yang disampaikan sesuai dengan materi yang tercantum dalam RPS untuk pertemuan tersebut. <span class="text-rose-500">*</span>
-              </p>
-              <div class="flex items-center space-x-6">
-                <label class="inline-flex items-center space-x-2 cursor-pointer">
-                  <input type="radio" name="q3" value="YA" required class="w-4 h-4 text-sky-600 focus:ring-sky-500">
-                  <span class="text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-200">YA</span>
-                </label>
-                <label class="inline-flex items-center space-x-2 cursor-pointer">
-                  <input type="radio" name="q3" value="TIDAK" class="w-4 h-4 text-sky-600 focus:ring-sky-500">
-                  <span class="text-sm font-semibold text-rose-700 bg-rose-50 px-3 py-1 rounded-md border border-rose-200">TIDAK</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- Photo Upload / Camera Access -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Bukti Foto / Dokumentasi Perkuliahan <span class="text-rose-500">*</span>
-            </label>
-
-            <!-- Mode Selector -->
-            <div class="flex space-x-2 mb-3">
-              <button type="button" onclick="setPhotoSource('upload')" id="btn-src-upload" class="flex-1 py-2 px-3 text-xs font-semibold rounded-lg border bg-sky-50 border-sky-300 text-sky-700 flex items-center justify-center space-x-1.5">
-                <i class="fa-solid fa-upload"></i><span>Unggah Berkas</span>
-              </button>
-              <button type="button" onclick="setPhotoSource('camera')" id="btn-src-camera" class="flex-1 py-2 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center space-x-1.5">
-                <i class="fa-solid fa-camera"></i><span>Gunakan Kamera</span>
-              </button>
-            </div>
-
-            <!-- Upload Container -->
-            <div id="upload-container" class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition-all cursor-pointer relative">
-              <input type="file" id="photo-file" accept="image/*" onchange="handleFileSelect(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-              <div class="space-y-1">
-                <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
-                <p class="text-xs text-slate-600 font-medium">Klik atau seret foto dokumentasi di sini</p>
-                <p class="text-[10px] text-slate-400">Format: JPG, PNG, WEBP (Maks. 5MB - Otomatis Terkompresi & Terunggah ke Google Drive)</p>
-              </div>
-            </div>
-
-            <!-- Camera Container -->
-            <div id="camera-container" class="hidden flex-col items-center border border-slate-300 bg-slate-900 rounded-xl p-3 overflow-hidden">
-              <video id="camera-stream" autoplay playsinline class="w-full max-h-[60vh] object-contain rounded-lg bg-black transition-all"></video>
-              <canvas id="camera-canvas" class="hidden"></canvas>
-              <div class="flex flex-wrap gap-2 mt-3 w-full justify-center">
-                <button type="button" onclick="captureCameraPhoto()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold flex items-center space-x-1.5">
-                  <i class="fa-solid fa-circle text-xs"></i><span>Ambil Foto</span>
-                </button>
-                <button type="button" onclick="switchCameraFacing()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-medium flex items-center space-x-1.5">
-                  <i class="fa-solid fa-camera-rotate"></i><span>Balik Kamera</span>
-                </button>
-                <button type="button" onclick="stopCamera()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-medium">
-                  Matikan Kamera
-                </button>
-              </div>
-            </div>
-
-            <!-- Preview Container -->
-            <div id="photo-preview-box" class="hidden mt-3 relative inline-block border rounded-xl overflow-hidden bg-slate-100 p-1">
-              <img id="photo-preview" src="" alt="Preview Dokumentasi" class="h-36 w-auto object-cover rounded-lg">
-              <button type="button" onclick="removePhoto()" class="absolute top-2 right-2 bg-rose-600 text-white rounded-full p-1.5 shadow-lg hover:bg-rose-700 text-xs w-6 h-6 flex items-center justify-center">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Kendala & Catatan -->
-          <div>
-            <label for="kendala" class="block text-sm font-semibold text-slate-700 mb-1">
-              Kendala atau Hal Penting (Perhatian Khusus)
-            </label>
-            <textarea id="kendala" rows="3" placeholder="Tuliskan jika terdapat kendala perkuliahan, sarana prasarana, atau situasi khusus..."
-              class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm"></textarea>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="pt-2">
-            <button type="submit" id="submit-btn" class="w-full py-3.5 px-6 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-semibold rounded-xl shadow-lg shadow-sky-600/30 transition-all flex items-center justify-center space-x-2 text-base">
-              <i class="fa-solid fa-paper-plane"></i>
-              <span>Kirim Hasil Observasi</span>
-            </button>
-          </div>
-        </form>
+        <h2 class="text-xl sm:text-2xl font-bold">Form Observasi Pelaksanaan Pembelajaran</h2>
+        <p class="text-xs sm:text-sm text-slate-300 max-w-2xl">
+          Klik tombol di bawah ini untuk mengisi instrumen observasi perkuliahan via Google Forms. Seluruh hasil pengisian akan otomatis tersinkron ke rekapitulasi data.
+        </p>
       </div>
-    </section>
+      <a href="https://forms.gle/QPcRE5dgKinoSJzL8" target="_blank" rel="noopener noreferrer" 
+         class="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/30 transition-all flex items-center space-x-2 shrink-0">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>Buka Form Observasi</span>
+        <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1"></i>
+      </a>
+    </div>
 
-    <!-- ================= TAB 2: REKAP DATA ================= -->
-    <section id="rekap-tab" class="tab-content hidden space-y-6">
+    <!-- ================= TAB 1: REKAP DATA ================= -->
+    <section id="rekap-tab" class="tab-content block space-y-6">
       <!-- Toolbar Header -->
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-md-center justify-between gap-4">
         <div>
           <h2 class="text-xl font-bold text-slate-800">Tabel Rekapitulasi Observasi</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Daftar perkuliahan yang telah diobservasi (Tersinkronisasi langsung dengan Google Sheets. Email disembunyikan).</p>
+          <p class="text-xs text-slate-500 mt-0.5">Daftar perkuliahan yang telah diobservasi (Tersinkronisasi langsung dengan Google Sheets sheet ISIAN. Email disembunyikan).</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <!-- Filter Dropdown -->
@@ -357,7 +171,7 @@
                 <th class="p-3.5 text-center">Jadwal Sesuai</th>
                 <th class="p-3.5 text-center">Tepat Waktu (&lt;15m)</th>
                 <th class="p-3.5 text-center">Sesuai RPS</th>
-                <th class="p-3.5 text-center">Foto Dokumentasi</th>
+                <th class="p-3.5 text-center">Dokumentasi</th>
                 <th class="p-3.5">Kendala / Catatan</th>
               </tr>
             </thead>
@@ -368,19 +182,19 @@
         </div>
         <div id="rekap-empty-state" class="p-12 text-center text-slate-400">
           <i class="fa-solid fa-folder-open text-4xl mb-3 text-slate-300"></i>
-          <p class="font-medium">Belum ada data observasi yang tersimpan.</p>
-          <p class="text-xs text-slate-400 mt-1">Silakan lakukan pengisian melalui menu Form Observasi.</p>
+          <p class="font-medium">Belum ada data observasi yang tersimpan di Google Sheet.</p>
+          <p class="text-xs text-slate-400 mt-1">Silakan lakukan pengisian melalui Form Observasi Google Forms.</p>
         </div>
       </div>
     </section>
 
-    <!-- ================= TAB 3: STATISTIK ================= -->
+    <!-- ================= TAB 2: STATISTIK ================= -->
     <section id="stats-tab" class="tab-content hidden space-y-6">
       <!-- Toolbar Header -->
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-md-center justify-between gap-4">
         <div>
           <h2 class="text-xl font-bold text-slate-800">Statistik Observasi Keterlaksanaan</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Analisis hasil pengisian observasi secara riil berdasarkan data dari Google Sheets.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Analisis hasil pengisian observasi secara riil berdasarkan data dari Google Sheets ISIAN.</p>
         </div>
         <div class="flex items-center space-x-2">
           <button onclick="loadDataFromSheet()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-all">
@@ -509,122 +323,51 @@
   </footer>
 
   <script>
-    // Daftar Mata Kuliah Lengkap
-    const MATA_KULIAH_LIST = [
-      "Antar Muka Komputer untuk Pembelajaran Fisika", "Astronomi", "Bahasa Inggris untuk Fisika",
-      "Bahasa Inggris untuk Pendidikan Fisika", "Cahaya dan Interaksinya", "Dasar-Dasar Instrumentasi Fisika",
-      "Disertasi", "Elektrodinamika", "Elektromagnetika", "Elektronika", "Elektronika II", "Etika Keilmuan",
-      "Filsafat Ilmu", "Fisika Atom, Inti dan Partikel", "Fisika Batuan", "Fisika Citra", "Fisika Dasar I",
-      "Fisika Dasar III", "Fisika Energi", "Fisika Gunung Api dan Panas Bumi", "Fisika Klasik Lanjut",
-      "Fisika Komputasi Lanjut", "Fisika Kuantum", "Fisika Magnetik Lanjut", "Fisika Matematika I",
-      "Fisika Material", "Fisika Modern", "Fisika Polimer", "Fisika Termal dan Statistika", "Fisika untuk Biologi",
-      "Fisika Untuk Bioteknologi", "Fisika untuk Pendidikan Biologi", "Fisika Zat Padat", "Geofisika",
-      "Geofisika Terapan", "Geologi", "Getaran dan Gelombang", "Instrumentasi Medis", "Kajian Kritis Fisika",
-      "Kajian Problematika Terkini Pendidikan Fisika", "Kapita Selekta Fisika Lanjut", "Karakterisasi Material",
-      "Kecerdasan Buatan dalam Fisika", "Kewirausahaan dan Karier Sain", "Kewirausahaan dan Karier Sains",
-      "Klimatologi", "Komputasi Sistem Fisis", "Komunikasi Optik", "Kristalografi", "Kristalografi Lanjut",
-      "Kuantum Zat Mampat", "Media Pembelajaran Fisika Berbasis Lingkungan", "Mekanika Klasik", "Mekanika Kuantum",
-      "Mekanika Kuantum Lanjut", "Mekanika Statistik", "Metode Penelitian Fisika", "Metode Penelitian Fisika Berbasis Lingkungan",
-      "Metodologi Penelitian dan Statistik Pendidikan Fisika", "Metodologi Penelitian Kuantitatif", "Nanomaterial",
-      "Nanomaterial Lanjut", "Pembangunan Berkelanjutan untuk Masyarakat", "Pembangunan Berkelanjutan Untuk Masyarakat",
-      "Pembelajaran Fisika", "Pemodelan dan Inversi Geofisika", "Pengembangan Asesmen Pendidikan Fisika",
-      "Pengembangan Karakter Fisika Peserta Didik", "Pengembangan Pembelajaran Fisika Inovatif", "Pengembangan Proposal Teisis",
-      "Pengembangan Proposal Tugas Akhir Doktor", "Penginderaan Jarak Jauh", "Perencanaan Pembelajaran Fisika",
-      "Sains Dasar Berkelanjutan (SDB)", "Sensor dan Aktuator", "Sensor optik", "Sintesa Penelitian Pendidikan Fisika",
-      "Sintesis Material Alam Lanjut", "Skripsi", "Skripsi Fisika", "Teori dan Psikologi Belajar Fisika",
-      "Teori Kuantum Material", "Teori Relativitas", "Termodinamika dan Fisika Stastistik", "Termodinamika Mineral",
-      "Tesis", "Tugas Akhir Magister"
-    ];
-
-    // Daftar Offering Lengkap
-    const OFFERING_LIST = [
-      "A", "AB", "ABC", "AM", "B", "BD", "C", "CD", "D", "E", "G", "H", "I", "J",
-      "M", "N", "O", "P1", "P10", "P11", "P12", "P13", "P14", "P15", "P2", "P3",
-      "P4", "P5", "P6", "P7", "P8", "P9", "S", "SKRIPSI"
-    ];
-
-    // Web App Google Apps Script Integration URL (Tertanam)
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwH4CJG8Qk5zkXrXgva8W1HFV7OLb98gBG-v4TqKOJMtp27HTEbMP3iy5vufoX_dkRDhw/exec";
-    
-    // Live Spreadsheet Published CSV Endpoint untuk Pembacaan Data
-    const SPREADSHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTbob6QC8QSd8o9Q5Ib76VxMG-4DZmc5RpYxpovYsXjT-Nvl69fdZxZ-rH2a2VvyaAawwuW9NZUcwUz/pub?output=csv";
+    // Live Spreadsheet Published CSV Endpoint from sheet "ISIAN"
+    const SPREADSHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSZF2hBW70ifVGelclk998k3I8czHkYxsobeGzW_WXhtTiaX_koauazLPi0rN75nNfSS4EsjDTXm0wA/pub?gid=1934691701&single=true&output=csv";
 
     // Application State Storage
     let observations = [];
-    let currentPhotoBase64 = "";
-    let mediaStream = null;
-    let currentFacingMode = "environment";
-    let videoDevices = [];
-    let currentDeviceIndex = 0;
 
-    // Populates dropdown menus
-    function populateDropdowns() {
-      const mkSelect = document.getElementById('matakuliah');
-      const filterMkSelect = document.getElementById('rekap-filter-mk');
-      const offeringSelect = document.getElementById('offering');
+    // Navigation Tab Switcher
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
 
-      if (mkSelect) {
-        mkSelect.innerHTML = '<option value="" disabled selected>-- Pilih Mata Kuliah --</option>';
-        MATA_KULIAH_LIST.forEach(mk => {
-          const opt = document.createElement('option');
-          opt.value = mk;
-          opt.textContent = mk;
-          mkSelect.appendChild(opt);
-        });
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-sky-600', 'text-white');
+        btn.classList.add('text-slate-300', 'hover:bg-slate-800');
+      });
+
+      const activeBtn = document.getElementById(`nav-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800');
+        activeBtn.classList.add('bg-sky-600', 'text-white');
       }
 
-      if (filterMkSelect) {
-        filterMkSelect.innerHTML = '<option value="ALL">Semua Mata Kuliah</option>';
-        MATA_KULIAH_LIST.forEach(mk => {
-          const opt = document.createElement('option');
-          opt.value = mk;
-          opt.textContent = mk;
-          filterMkSelect.appendChild(opt);
-        });
-      }
-
-      if (offeringSelect) {
-        offeringSelect.innerHTML = '<option value="" disabled selected>-- Pilih Offering --</option>';
-        OFFERING_LIST.forEach(off => {
-          const opt = document.createElement('option');
-          opt.value = off;
-          opt.textContent = off;
-          offeringSelect.appendChild(opt);
-        });
+      if (tabId === 'rekap-tab' || tabId === 'stats-tab') {
+        loadDataFromSheet(true);
       }
     }
 
-    // Default Date and Time
-    function setDefaultDateTime() {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-
-      const dateInput = document.getElementById('tanggal');
-      const timeInput = document.getElementById('jam');
-
-      if (dateInput) dateInput.value = `${year}-${month}-${day}`;
-      if (timeInput) timeInput.value = `${hours}:${minutes}`;
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      populateDropdowns();
-      setDefaultDateTime();
       loadDataFromSheet();
 
-      // Periodic sync every 20s
+      // Set up periodic sync every 20 seconds for real-time responsiveness
       setInterval(() => {
         const activeTab = document.querySelector('.tab-content:not(.hidden)');
         if (activeTab && (activeTab.id === 'rekap-tab' || activeTab.id === 'stats-tab')) {
-          loadDataFromSheet(true);
+          loadDataFromSheet(true); // Silent background refresh
         }
       }, 20000);
     });
 
-    // CSV Parser helper
+    // Helper function to parse CSV format safely with quote handling
     function parseCSV(text) {
       const lines = [];
       let row = [];
@@ -664,7 +407,83 @@
       return lines;
     }
 
-    // Load Live Data from Spreadsheet
+    // Helper to normalize Yes/No answer format
+    function normalizeAnswer(val) {
+      if (!val) return 'TIDAK';
+      const clean = String(val).toUpperCase().trim();
+      if (clean.includes('YA') || clean === 'Y' || clean === 'YES' || clean === 'TRUE' || clean === '1') {
+        return 'YA';
+      }
+      return 'TIDAK';
+    }
+
+    // Dynamic Column Index Resolution matching Spreadsheet columns (A to K)
+    // Structure:
+    // A: Timestamp (0)
+    // B: Email Address (1)
+    // C: Tanggal (2)
+    // D: Jam Perkuliahan (3)
+    // E: Nama Mata Kuliah (4)
+    // F: Kelas/Off (5)
+    // G: 1. Perkuliahan dilaksanakan pada hari dan waktu sesuai jadwal. (6)
+    // H: 2. Dosen hadir dan memulai perkuliahan paling lambat 15 menit. (7)
+    // I: 3. Materi yang disampaikan sesuai dengan materi yang tercantum dalam RPS untuk pertemuan tersebut. (8)
+    // J: Bukti Foto / Dokumentasi Perkuliahan (9)
+    // K: Catatan Kendala atau Hal Penting (Perhatian Khusus) (10)
+    function resolveColumnIndices(headerRow) {
+      const indices = {
+        timestamp: 0,
+        email: 1,
+        tanggal: 2,
+        jam: 3,
+        matakuliah: 4, // Kolom E (0-indexed: 4)
+        offering: 5,   // Kolom F
+        q1: 6,         // Kolom G
+        q2: 7,         // Kolom H
+        q3: 8,         // Kolom I
+        foto: 9,       // Kolom J
+        kendala: 10    // Kolom K
+      };
+
+      if (!headerRow || headerRow.length === 0) return indices;
+
+      headerRow.forEach((colName, idx) => {
+        const lower = colName.toLowerCase();
+        
+        if (lower.includes('1.') || lower.includes('hari dan waktu') || lower.includes('sesuai jadwal')) {
+          indices.q1 = idx;
+        } else if (lower.includes('2.') || lower.includes('15 menit') || lower.includes('memulai perkuliahan')) {
+          indices.q2 = idx;
+        } else if (lower.includes('3.') || lower.includes('tercantum dalam rps') || lower.includes('sesuai rps')) {
+          indices.q3 = idx;
+        } else if (lower.includes('email')) {
+          indices.email = idx;
+        } else if (lower.includes('timestamp') || lower.includes('waktu pengisian')) {
+          indices.timestamp = idx;
+        } else if (lower.includes('jam perkuliahan') || lower.includes('jam')) {
+          indices.jam = idx;
+        } else if (lower.includes('tanggal')) {
+          indices.tanggal = idx;
+        } else if (lower.includes('nama mata kuliah') || lower.includes('matakuliah') || lower.includes('mata kuliah')) {
+          indices.matakuliah = idx;
+        } else if (lower.includes('kelas/off') || lower.includes('offering') || lower.includes('kelas')) {
+          indices.offering = idx;
+        } else if (lower.includes('bukti foto') || lower.includes('dokumentasi') || lower.includes('foto')) {
+          indices.foto = idx;
+        } else if (lower.includes('catatan kendala') || lower.includes('hal penting') || lower.includes('kendala') || lower.includes('catatan')) {
+          indices.kendala = idx;
+        }
+      });
+
+      // Utamakan Kolom E (index 4) untuk Nama Mata Kuliah
+      if (headerRow.length > 4) {
+        indices.matakuliah = 4;
+      }
+
+      return indices;
+    }
+
+    // Load Live Data directly from published Google Sheet CSV
     async function loadDataFromSheet(isSilent = false) {
       const iconRekap = document.getElementById('refresh-icon-rekap');
       const iconStats = document.getElementById('refresh-icon-stats');
@@ -681,42 +500,67 @@
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
         });
+
         if (response.ok) {
           const csvText = await response.text();
           const rows = parseCSV(csvText);
 
           const parsed = [];
           if (rows.length > 1) {
+            const headerRow = rows[0];
+            const colMap = resolveColumnIndices(headerRow);
+
             for (let i = 1; i < rows.length; i++) {
               const r = rows[i];
-              if (!r || r.length < 4 || (!r[2] && !r[3])) continue;
+              if (!r || r.length === 0) continue;
+
+              const ts = r[colMap.timestamp] || '';
+              const email = r[colMap.email] || '';
+              
+              const tglVal = colMap.tanggal !== -1 ? (r[colMap.tanggal] || '') : '';
+              const jamVal = colMap.jam !== -1 ? (r[colMap.jam] || '') : '';
+              
+              let tglJamCombined = '-';
+              if (tglVal && jamVal) {
+                tglJamCombined = `${tglVal} ${jamVal}`;
+              } else if (tglVal) {
+                tglJamCombined = tglVal;
+              } else if (jamVal) {
+                tglJamCombined = jamVal;
+              } else if (ts) {
+                tglJamCombined = ts;
+              }
+
+              // Memastikan pengambilan Nama Mata Kuliah mengutamakan Kolom E (index 4)
+              const mk = (r[4] !== undefined && r[4] !== '') ? r[4] : ((colMap.matakuliah !== -1 ? r[colMap.matakuliah] : '') || '-');
+              const offering = (colMap.offering !== -1 ? r[colMap.offering] : '') || '-';
+
+              if (!ts && !mk && !offering && tglJamCombined === '-') continue; // skip blank rows
 
               parsed.push({
                 id: i,
-                timestamp: r[0] || '',
-                email: r[1] || '',
-                tanggalJam: r[2] || '',
-                matakuliah: r[3] || '',
-                offering: r[4] || '',
-                q1: (r[5] || 'TIDAK').toUpperCase(),
-                q2: (r[6] || 'TIDAK').toUpperCase(),
-                q3: (r[7] || 'TIDAK').toUpperCase(),
-                foto: r[8] || '',
-                kendala: r[9] || '-'
+                timestamp: ts,
+                email: email, // saved, hidden in UI/export
+                tanggalJam: tglJamCombined,
+                matakuliah: mk,
+                offering: offering,
+                q1: normalizeAnswer(colMap.q1 !== -1 ? r[colMap.q1] : ''),
+                q2: normalizeAnswer(colMap.q2 !== -1 ? r[colMap.q2] : ''),
+                q3: normalizeAnswer(colMap.q3 !== -1 ? r[colMap.q3] : ''),
+                foto: (colMap.foto !== -1 ? r[colMap.foto] : '') || '',
+                kendala: (colMap.kendala !== -1 ? r[colMap.kendala] : '') || '-'
               });
             }
           }
           fetchedData = parsed;
         }
       } catch (err) {
-        console.warn("Koneksi Google Sheets langsung gagal:", err);
+        console.warn("Koneksi Google Sheets CSV gagal:", err);
       }
 
       if (fetchedData !== null) {
         observations = fetchedData.reverse();
-        saveLocalData();
-      } else {
-        loadLocalData();
+        updateFilterOptions();
       }
 
       renderRekapTable();
@@ -728,447 +572,35 @@
       }
     }
 
-    // Navigation Tab Switcher
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.getElementById(tabId).classList.remove('hidden');
+    // Dynamically update Filter Dropdown based on fetched courses
+    function updateFilterOptions() {
+      const filterMkSelect = document.getElementById('rekap-filter-mk');
+      if (!filterMkSelect) return;
 
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.remove('bg-sky-600', 'text-white');
-        btn.classList.add('text-slate-300', 'hover:bg-slate-800');
+      const currentSelection = filterMkSelect.value;
+      const uniqueCourses = new Set();
+      observations.forEach(item => {
+        if (item.matakuliah && item.matakuliah !== '-') {
+          uniqueCourses.add(item.matakuliah);
+        }
       });
 
-      const activeBtn = document.getElementById(`nav-${tabId}`);
-      if (activeBtn) {
-        activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800');
-        activeBtn.classList.add('bg-sky-600', 'text-white');
-      }
+      const sortedCourses = Array.from(uniqueCourses).sort();
 
-      if (tabId === 'rekap-tab' || tabId === 'stats-tab') {
-        loadDataFromSheet();
-      }
-
-      if (tabId !== 'form-tab') {
-        stopCamera();
-      }
-    }
-
-    function toggleMobileMenu() {
-      const menu = document.getElementById('mobile-menu');
-      menu.classList.toggle('hidden');
-    }
-
-    // Photo Source Switcher
-    function setPhotoSource(source) {
-      const btnUpload = document.getElementById('btn-src-upload');
-      const btnCamera = document.getElementById('btn-src-camera');
-      const uploadBox = document.getElementById('upload-container');
-      const cameraBox = document.getElementById('camera-container');
-
-      if (source === 'upload') {
-        btnUpload.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg border bg-sky-50 border-sky-300 text-sky-700 flex items-center justify-center space-x-1.5";
-        btnCamera.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center space-x-1.5";
-        uploadBox.classList.remove('hidden');
-        cameraBox.classList.add('hidden');
-        stopCamera();
-      } else {
-        btnCamera.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg border bg-sky-50 border-sky-300 text-sky-700 flex items-center justify-center space-x-1.5";
-        btnUpload.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center space-x-1.5";
-        uploadBox.classList.add('hidden');
-        cameraBox.classList.remove('hidden');
-        cameraBox.classList.add('flex');
-        startCamera();
-      }
-    }
-
-    // Handle File Selection with Client-Side Canvas Compression (Max 1280px)
-    function handleFileSelect(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      if (file.size > 10 * 1024 * 1024) {
-        showToast("Ukuran berkas asli terlalu besar (maksimal 10MB)", "error");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = async function (e) {
-        const img = new Image();
-        img.onload = async function() {
-          const maxDim = 1280;
-          let w = img.width;
-          let h = img.height;
-
-          if (w > maxDim || h > maxDim) {
-            if (w > h) {
-              h = Math.round((h * maxDim) / w);
-              w = maxDim;
-            } else {
-              w = Math.round((w * maxDim) / h);
-              h = maxDim;
-            }
-          }
-
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-
-          const geoStr = await getGeoLocation();
-          addPhotoWatermark(ctx, w, h, geoStr);
-
-          // Quality 0.75 results in a clean, lightweight payload (~150-250KB Base64)
-          currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.75);
-          displayPhotoPreview(currentPhotoBase64);
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    async function startCamera() {
-      stopCamera();
-      try {
-        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-          const devices = await navigator.mediaDevices.enumerateDevices();
-          videoDevices = devices.filter(d => d.kind === 'videoinput');
-        }
-
-        let constraints = { audio: false };
-
-        if (videoDevices.length > 1 && videoDevices[currentDeviceIndex]) {
-          constraints.video = { 
-            deviceId: { exact: videoDevices[currentDeviceIndex].deviceId },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          };
-        } else {
-          constraints.video = { 
-            facingMode: { ideal: currentFacingMode },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          };
-        }
-
-        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-        const video = document.getElementById('camera-stream');
-        video.srcObject = mediaStream;
-
-        window.removeEventListener('orientationchange', handleOrientationChange);
-        window.addEventListener('orientationchange', handleOrientationChange);
-      } catch (err) {
-        try {
-          mediaStream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: currentFacingMode }, 
-            audio: false 
-          });
-          const video = document.getElementById('camera-stream');
-          video.srcObject = mediaStream;
-        } catch (e) {
-          showToast("Tidak dapat mengakses kamera. Pastikan telah memberi izin.", "error");
-        }
-      }
-    }
-
-    function handleOrientationChange() {
-      const video = document.getElementById('camera-stream');
-      if (video && video.srcObject) {
-        video.style.display = 'none';
-        setTimeout(() => { video.style.display = 'block'; }, 50);
-      }
-    }
-
-    function switchCameraFacing() {
-      currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
-      if (videoDevices.length > 1) {
-        currentDeviceIndex = (currentDeviceIndex + 1) % videoDevices.length;
-      }
-      startCamera();
-    }
-
-    function stopCamera() {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(track => track.stop());
-        mediaStream = null;
-      }
-    }
-
-    // GPS Geolocation Handler
-    async function getGeoLocation() {
-      if (!navigator.geolocation) {
-        return await getFallbackLocation();
-      }
-
-      return new Promise((resolve) => {
-        const timeoutId = setTimeout(async () => {
-          resolve(await getFallbackLocation());
-        }, 4000);
-
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            clearTimeout(timeoutId);
-            const lat = position.coords.latitude.toFixed(5);
-            const lng = position.coords.longitude.toFixed(5);
-            resolve(`GPS: ${lat}, ${lng}`);
-          },
-          async () => {
-            clearTimeout(timeoutId);
-            resolve(await getFallbackLocation());
-          },
-          { enableHighAccuracy: false, timeout: 3500, maximumAge: 300000 }
-        );
+      filterMkSelect.innerHTML = '<option value="ALL">Semua Mata Kuliah</option>';
+      sortedCourses.forEach(mk => {
+        const opt = document.createElement('option');
+        opt.value = mk;
+        opt.textContent = mk;
+        filterMkSelect.appendChild(opt);
       });
-    }
 
-    async function getFallbackLocation() {
-      try {
-        const controller = new AbortController();
-        const timeoutSignal = setTimeout(() => controller.abort(), 2000);
-        
-        const res = await fetch('https://ipapi.co/json/', { cache: 'no-store', signal: controller.signal });
-        clearTimeout(timeoutSignal);
-
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.latitude && data.longitude) {
-            const lat = parseFloat(data.latitude).toFixed(5);
-            const lng = parseFloat(data.longitude).toFixed(5);
-            const city = data.city || 'Malang';
-            return `GPS: ${lat}, ${lng} (${city})`;
-          }
-        }
-      } catch (e) {}
-      
-      return `GPS: -7.96125, 112.61842 (Malang)`;
-    }
-
-    // Capture Photo from Camera Stream with Max 1280px Scale & 0.75 JPEG Compression
-    async function captureCameraPhoto() {
-      const video = document.getElementById('camera-stream');
-      const canvas = document.getElementById('camera-canvas');
-      if (!video.srcObject) return;
-
-      const rawW = video.videoWidth || 1280;
-      const rawH = video.videoHeight || 720;
-      const maxDim = 1280;
-      let w = rawW;
-      let h = rawH;
-
-      if (w > maxDim || h > maxDim) {
-        if (w > h) {
-          h = Math.round((h * maxDim) / w);
-          w = maxDim;
-        } else {
-          w = Math.round((w * maxDim) / h);
-          h = maxDim;
-        }
-      }
-
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, w, h);
-
-      const geoStr = await getGeoLocation();
-      addPhotoWatermark(ctx, w, h, geoStr);
-
-      currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.75);
-      displayPhotoPreview(currentPhotoBase64);
-      stopCamera();
-      document.getElementById('camera-container').classList.add('hidden');
-      document.getElementById('camera-container').classList.remove('flex');
-    }
-
-    // Watermark Renderer
-    function addPhotoWatermark(ctx, w, h, geoStr = "GPS: -") {
-      const now = new Date();
-      const dateStr = String(now.getDate()).padStart(2, '0') + '/' + 
-                      String(now.getMonth() + 1).padStart(2, '0') + '/' + 
-                      now.getFullYear();
-      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + 
-                      String(now.getMinutes()).padStart(2, '0') + ':' + 
-                      String(now.getSeconds()).padStart(2, '0');
-
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      const hh = String(now.getHours()).padStart(2, '0');
-      const min = String(now.getMinutes()).padStart(2, '0');
-      const ss = String(now.getSeconds()).padStart(2, '0');
-      const timeHash = (now.getTime()).toString(36).toUpperCase();
-      const uniqueCode = `GKM-${yyyy}${mm}${dd}-${hh}${min}${ss}-${timeHash}`;
-
-      const line1 = `Dokumentasi Observasi | ${dateStr} ${timeStr} WIB`;
-      const line2 = `Terverifikasi GKM | ${geoStr} | Kode: ${uniqueCode}`;
-
-      let fontSize = Math.max(10, Math.round(Math.min(w, h) * 0.026));
-      ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
-
-      const maxAvailableWidth = w * 0.88;
-      let paddingX = fontSize * 0.6;
-      let paddingY = fontSize * 0.45;
-
-      let w1 = ctx.measureText(line1).width;
-      let w2 = ctx.measureText(line2).width;
-      let maxTextW = Math.max(w1, w2);
-
-      while ((maxTextW + paddingX * 2) > maxAvailableWidth && fontSize > 8) {
-        fontSize -= 0.5;
-        ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
-        paddingX = fontSize * 0.6;
-        paddingY = fontSize * 0.45;
-        w1 = ctx.measureText(line1).width;
-        w2 = ctx.measureText(line2).width;
-        maxTextW = Math.max(w1, w2);
-      }
-
-      const boxWidth = maxTextW + (paddingX * 2);
-      const lineHeight = fontSize * 1.35;
-      const boxHeight = (lineHeight * 2) + (paddingY * 1.6);
-      const margin = Math.max(8, Math.round(fontSize * 0.6));
-      const boxX = margin;
-      const boxY = h - margin - boxHeight;
-
-      ctx.save();
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.90)';
-      if (typeof ctx.roundRect === 'function') {
-        ctx.beginPath();
-        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 6);
-        ctx.fill();
-      } else {
-        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-      }
-
-      ctx.fillStyle = '#0284c7';
-      ctx.fillRect(boxX, boxY, Math.max(3, fontSize * 0.2), boxHeight);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.textBaseline = 'top';
-      const textX = boxX + paddingX + (fontSize * 0.15);
-      
-      ctx.fillText(line1, textX, boxY + paddingY);
-      ctx.fillText(line2, textX, boxY + paddingY + lineHeight);
-
-      ctx.restore();
-    }
-
-    function displayPhotoPreview(src) {
-      const box = document.getElementById('photo-preview-box');
-      const img = document.getElementById('photo-preview');
-      img.src = src;
-      box.classList.remove('hidden');
-    }
-
-    function removePhoto() {
-      currentPhotoBase64 = "";
-      document.getElementById('photo-preview').src = "";
-      document.getElementById('photo-preview-box').classList.add('hidden');
-      document.getElementById('photo-file').value = "";
-    }
-
-    function getFormattedTimestamp() {
-      const now = new Date();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      const yyyy = now.getFullYear();
-      const hh = String(now.getHours()).padStart(2, '0');
-      const min = String(now.getMinutes()).padStart(2, '0');
-      const ss = String(now.getSeconds()).padStart(2, '0');
-      return `${mm}/${dd}/${yyyy} ${hh}:${min}:${ss}`;
-    }
-
-    // Submit Handler
-    async function handleFormSubmit(e) {
-      e.preventDefault();
-
-      if (!currentPhotoBase64) {
-        showToast("Bukti foto / dokumentasi perkuliahan wajib diambil atau diunggah!", "error");
-        return;
-      }
-
-      const submitBtn = document.getElementById('submit-btn');
-      const originalBtnHTML = submitBtn.innerHTML;
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Menyimpan & Mengunggah ke Drive...</span>`;
-
-      const email = document.getElementById('email').value.trim();
-      const tanggal = document.getElementById('tanggal').value;
-      const jam = document.getElementById('jam').value;
-      const matakuliah = document.getElementById('matakuliah').value;
-      const offering = document.getElementById('offering').value;
-      const q1 = document.querySelector('input[name="q1"]:checked')?.value || 'TIDAK';
-      const q2 = document.querySelector('input[name="q2"]:checked')?.value || 'TIDAK';
-      const q3 = document.querySelector('input[name="q3"]:checked')?.value || 'TIDAK';
-      const kendala = document.getElementById('kendala').value.trim();
-      const timestamp = getFormattedTimestamp();
-
-      const newRecord = {
-        id: Date.now(),
-        timestamp: timestamp,
-        email: email,
-        tanggalJam: `${tanggal} ${jam}`,
-        matakuliah: matakuliah,
-        offering: offering,
-        q1: q1,
-        q2: q2,
-        q3: q3,
-        foto: currentPhotoBase64,
-        kendala: kendala || '-'
-      };
-
-      observations.unshift(newRecord);
-      saveLocalData();
-
-      try {
-        await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newRecord)
-        });
-      } catch (err) {}
-
-      document.getElementById('observation-form').reset();
-      removePhoto();
-      setDefaultDateTime();
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalBtnHTML;
-
-      showToast("Data observasi dan foto berhasil dikirim ke Google Drive & Spreadsheet!", "success");
-
-      setTimeout(() => {
-        loadDataFromSheet();
-        switchTab('rekap-tab');
-      }, 1500);
-    }
-
-    // Storage Management
-    function saveLocalData() {
-      try {
-        const lightweightData = observations.slice(0, 30).map(item => {
-          const cleanItem = { ...item };
-          if (cleanItem.foto && cleanItem.foto.length > 300) {
-            cleanItem.foto = '';
-          }
-          return cleanItem;
-        });
-        localStorage.setItem('obs_pembelajaran_data', JSON.stringify(lightweightData));
-      } catch (e) {
-        try { localStorage.removeItem('obs_pembelajaran_data'); } catch (err) {}
+      if (sortedCourses.includes(currentSelection)) {
+        filterMkSelect.value = currentSelection;
       }
     }
 
-    function loadLocalData() {
-      const stored = localStorage.getItem('obs_pembelajaran_data');
-      if (stored) {
-        try { observations = JSON.parse(stored); } catch (e) { observations = []; }
-      } else {
-        observations = [];
-      }
-    }
-
-    // Render Table
+    // Render Table (Hides Email column)
     function renderRekapTable() {
       const tbody = document.getElementById('rekap-table-body');
       const emptyState = document.getElementById('rekap-empty-state');
@@ -1198,16 +630,22 @@
 
         let photoTd = `<span class="text-slate-400 text-xs">-</span>`;
         if (item.foto) {
-          if (item.foto.startsWith('http')) {
-            photoTd = `<a href="${item.foto}" target="_blank" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>Buka di Drive</span></a>`;
+          if (item.foto.startsWith('http://') || item.foto.startsWith('https://')) {
+            photoTd = `<a href="${escapeHtml(item.foto)}" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i><span>Lihat Foto</span>
+            </a>`;
           } else if (item.foto.startsWith('data:image')) {
-            photoTd = `<button onclick="previewPhotoModal('${item.foto}')" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200"><i class="fa-solid fa-image"></i><span>Lihat Foto</span></button>`;
+            photoTd = `<button onclick="previewPhotoModal('${item.foto}')" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1">
+              <i class="fa-solid fa-image"></i><span>Lihat</span>
+            </button>`;
+          } else {
+            photoTd = `<span class="text-slate-600 text-xs">${escapeHtml(item.foto)}</span>`;
           }
         }
 
         tr.innerHTML = `
           <td class="p-3.5 text-center text-slate-500 font-medium">${index + 1}</td>
-          <td class="p-3.5 text-slate-700 whitespace-nowrap font-mono text-xs">${item.tanggalJam}</td>
+          <td class="p-3.5 text-slate-700 whitespace-nowrap font-mono text-xs">${escapeHtml(item.tanggalJam)}</td>
           <td class="p-3.5 font-semibold text-slate-800">${escapeHtml(item.matakuliah)}</td>
           <td class="p-3.5 text-center font-bold text-sky-700">${escapeHtml(item.offering)}</td>
           <td class="p-3.5 text-center">${badgeStyle(item.q1)}</td>
@@ -1220,7 +658,7 @@
       });
     }
 
-    // Render Stats
+    // Render Real-Time Statistics
     function renderStats() {
       const total = observations.length;
       document.getElementById('stat-total-count').textContent = total;
@@ -1260,7 +698,9 @@
         if (item.q2 === 'YA') q2Ya++;
         if (item.q3 === 'YA') q3Ya++;
 
-        courseCounts[item.matakuliah] = (courseCounts[item.matakuliah] || 0) + 1;
+        if (item.matakuliah && item.matakuliah !== '-') {
+          courseCounts[item.matakuliah] = (courseCounts[item.matakuliah] || 0) + 1;
+        }
       });
 
       const q1Percent = Math.round((q1Ya / total) * 100);
@@ -1286,26 +726,32 @@
       updateBar('bar-q2-ya', 'bar-q2-tidak', q2Percent, 100 - q2Percent);
       updateBar('bar-q3-ya', 'bar-q3-tidak', q3Percent, 100 - q3Percent);
 
+      // Render Course Distribution list
       const courseListEl = document.getElementById('course-stats-list');
       courseListEl.innerHTML = '';
 
-      Object.entries(courseCounts)
-        .sort((a, b) => b[1] - a[1])
-        .forEach(([course, count]) => {
-          const coursePct = Math.round((count / total) * 100);
-          const div = document.createElement('div');
-          div.className = "space-y-1";
-          div.innerHTML = `
-            <div class="flex justify-between text-xs font-medium text-slate-700">
-              <span class="truncate pr-2">${escapeHtml(course)}</span>
-              <span class="font-bold">${count} observasi (${coursePct}%)</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-              <div class="bg-sky-600 h-full rounded-full" style="width: ${coursePct}%"></div>
-            </div>
-          `;
-          courseListEl.appendChild(div);
-        });
+      const courseEntries = Object.entries(courseCounts).sort((a, b) => b[1] - a[1]);
+
+      if (courseEntries.length === 0) {
+        courseListEl.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">Belum ada sebaran mata kuliah.</p>`;
+        return;
+      }
+
+      courseEntries.forEach(([course, count]) => {
+        const coursePct = Math.round((count / total) * 100);
+        const div = document.createElement('div');
+        div.className = "space-y-1";
+        div.innerHTML = `
+          <div class="flex justify-between text-xs font-medium text-slate-700">
+            <span class="truncate pr-2">${escapeHtml(course)}</span>
+            <span class="font-bold shrink-0">${count} observasi (${coursePct}%)</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div class="bg-sky-600 h-full rounded-full" style="width: ${coursePct}%"></div>
+          </div>
+        `;
+        courseListEl.appendChild(div);
+      });
     }
 
     function updateBar(yaId, tidakId, pctYa, pctTidak) {
@@ -1319,7 +765,7 @@
       tidakEl.textContent = pctTidak > 10 ? `${pctTidak}%` : '';
     }
 
-    // Export Document Functions
+    // Export Rekap to .doc (HTML blob technique) - Email column hidden!
     function downloadRecapDoc() {
       if (observations.length === 0) {
         showToast("Tidak ada data observasi untuk diunduh.", "error");
@@ -1328,20 +774,15 @@
 
       let tableRows = '';
       observations.forEach((item, i) => {
-        let photoCell = '-';
-        if (item.foto && item.foto.startsWith('http')) {
-          photoCell = `<a href="${item.foto}">${item.foto}</a>`;
-        }
         tableRows += `
           <tr>
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${i + 1}</td>
-            <td style="padding:8px; border:1px solid #cbd5e1;">${item.tanggalJam}</td>
+            <td style="padding:8px; border:1px solid #cbd5e1;">${escapeHtml(item.tanggalJam)}</td>
             <td style="padding:8px; border:1px solid #cbd5e1;"><b>${escapeHtml(item.matakuliah)}</b></td>
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${escapeHtml(item.offering)}</td>
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${item.q1}</td>
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${item.q2}</td>
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${item.q3}</td>
-            <td style="padding:8px; border:1px solid #cbd5e1; text-align:center;">${photoCell}</td>
             <td style="padding:8px; border:1px solid #cbd5e1;">${escapeHtml(item.kendala)}</td>
           </tr>
         `;
@@ -1356,7 +797,7 @@
             body { font-family: 'Calibri', 'Arial', sans-serif; margin: 20px; }
             h2 { color: #0369a1; text-align: center; margin-bottom: 5px; }
             p.sub { text-align: center; color: #64748b; font-size: 12px; margin-top: 0; }
-            table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 15px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; }
             th { background-color: #0284c7; color: #ffffff; padding: 10px; border: 1px solid #0284c7; text-align: center; }
           </style>
         </head>
@@ -1367,14 +808,13 @@
             <thead>
               <tr>
                 <th style="width:5%;">No</th>
-                <th style="width:12%;">Tanggal & Jam</th>
-                <th style="width:25%;">Nama Mata Kuliah</th>
-                <th style="width:8%;">Offering</th>
-                <th style="width:8%;">Sesuai Jadwal</th>
-                <th style="width:8%;">Tepat Waktu</th>
-                <th style="width:8%;">Sesuai RPS</th>
-                <th style="width:12%;">URL Foto Drive</th>
-                <th style="width:14%;">Kendala / Catatan</th>
+                <th style="width:15%;">Tanggal & Jam</th>
+                <th style="width:30%;">Nama Mata Kuliah</th>
+                <th style="width:10%;">Offering</th>
+                <th style="width:10%;">Sesuai Jadwal</th>
+                <th style="width:10%;">Tepat Waktu (&lt;15m)</th>
+                <th style="width:10%;">Sesuai RPS</th>
+                <th style="width:20%;">Kendala / Catatan</th>
               </tr>
             </thead>
             <tbody>
@@ -1388,6 +828,7 @@
       downloadBlobAsDoc(htmlContent, 'Rekap_Observasi_Pembelajaran.doc');
     }
 
+    // Export Statistik to .doc
     function downloadStatsDoc() {
       const total = observations.length;
       if (total === 0) {
@@ -1414,7 +855,7 @@
           <style>
             body { font-family: 'Calibri', 'Arial', sans-serif; margin: 25px; line-height: 1.5; }
             h2 { color: #075985; border-bottom: 2px solid #0284c7; padding-bottom: 5px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
             th { background-color: #0f172a; color: #ffffff; padding: 8px; border: 1px solid #0f172a; }
             td { padding: 8px; border: 1px solid #cbd5e1; }
           </style>
@@ -1463,7 +904,9 @@
     }
 
     function downloadBlobAsDoc(content, fileName) {
-      const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
+      const blob = new Blob(['\ufeff', content], {
+        type: 'application/msword'
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -1486,7 +929,10 @@
 
       container.appendChild(toast);
 
-      setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
       setTimeout(() => {
         toast.classList.add('opacity-0');
         setTimeout(() => toast.remove(), 300);
