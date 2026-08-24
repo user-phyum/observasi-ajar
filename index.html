@@ -143,7 +143,11 @@
           <p class="text-xs text-slate-500 mt-0.5">Daftar perkuliahan yang telah diobservasi (Tersinkronisasi langsung dengan Google Sheets sheet ISIAN. Email disembunyikan).</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <!-- Filter Dropdown -->
+          <!-- Filter Dropdown Prodi -->
+          <select id="rekap-filter-prodi" onchange="renderRekapTable()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <option value="ALL">Semua Program Studi</option>
+          </select>
+          <!-- Filter Dropdown Mata Kuliah -->
           <select id="rekap-filter-mk" onchange="renderRekapTable()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500">
             <option value="ALL">Semua Mata Kuliah</option>
           </select>
@@ -166,6 +170,7 @@
               <tr class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
                 <th class="p-3.5 text-center w-12">No</th>
                 <th class="p-3.5">Waktu Observasi</th>
+                <th class="p-3.5">Program Studi (Prodi)</th>
                 <th class="p-3.5">Mata Kuliah</th>
                 <th class="p-3.5 text-center">Offering</th>
                 <th class="p-3.5 text-center">Jadwal Sesuai</th>
@@ -194,7 +199,7 @@
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-md-center justify-between gap-4">
         <div>
           <h2 class="text-xl font-bold text-slate-800">Statistik Observasi Keterlaksanaan</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Analisis hasil pengisian observasi secara riil berdasarkan data dari Google Sheets ISIAN.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Analisis hasil pengisian observasi secara riil berdasarkan data dari Google Sheets ISIAN & REKAP.</p>
         </div>
         <div class="flex items-center space-x-2">
           <button onclick="loadDataFromSheet()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-all">
@@ -245,6 +250,25 @@
             <p class="text-xs font-medium text-slate-500">Kesesuaian RPS</p>
             <h3 id="stat-q3-percent" class="text-2xl font-bold text-slate-800">0%</h3>
           </div>
+        </div>
+      </div>
+
+      <!-- SECTION: Capaian Berdasarkan Program Studi (Prodi) -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 gap-2">
+          <div>
+            <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+              <i class="fa-solid fa-graduation-cap text-sky-600"></i>
+              <span>Capaian Observasi Berdasarkan Program Studi (Prodi)</span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">Rekapitulasi persentase keterlaksanaan indikator pada tiap Program Studi</p>
+          </div>
+          <span id="stat-prodi-total-badge" class="text-xs bg-sky-100 text-sky-800 px-3 py-1 rounded-full font-semibold shrink-0">
+            0 Program Studi
+          </span>
+        </div>
+        <div id="prodi-stats-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Rendered dynamically -->
         </div>
       </div>
 
@@ -323,11 +347,15 @@
   </footer>
 
   <script>
-    // Live Spreadsheet Published CSV Endpoint from sheet "ISIAN"
+    // Published CSV Endpoint for sheet "ISIAN" (Data Observasi)
     const SPREADSHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSZF2hBW70ifVGelclk998k3I8czHkYxsobeGzW_WXhtTiaX_koauazLPi0rN75nNfSS4EsjDTXm0wA/pub?gid=1934691701&single=true&output=csv";
+    
+    // Published CSV Endpoint for sheet "REKAP" (Sebaran & Capaian REKAP)
+    const REKAP_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSZF2hBW70ifVGelclk998k3I8czHkYxsobeGzW_WXhtTiaX_koauazLPi0rN75nNfSS4EsjDTXm0wA/pub?gid=351565573&single=true&output=csv";
 
     // Application State Storage
     let observations = [];
+    let rekapSheetData = [];
 
     // Navigation Tab Switcher
     function switchTab(tabId) {
@@ -367,7 +395,6 @@
       }, 20000);
     });
 
-    // Helper function to parse CSV format safely with quote handling
     function parseCSV(text) {
       const lines = [];
       let row = [];
@@ -407,7 +434,6 @@
       return lines;
     }
 
-    // Helper to normalize Yes/No answer format
     function normalizeAnswer(val) {
       if (!val) return 'TIDAK';
       const clean = String(val).toUpperCase().trim();
@@ -417,7 +443,7 @@
       return 'TIDAK';
     }
 
-    // Dynamic Column Index Resolution matching Spreadsheet columns (A to K)
+    // Dynamic Column Index Resolution matching Spreadsheet columns (A to M)
     // Structure:
     // A: Timestamp (0)
     // B: Email Address (1)
@@ -427,9 +453,10 @@
     // F: Kelas/Off (5)
     // G: 1. Perkuliahan dilaksanakan pada hari dan waktu sesuai jadwal. (6)
     // H: 2. Dosen hadir dan memulai perkuliahan paling lambat 15 menit. (7)
-    // I: 3. Materi yang disampaikan sesuai dengan materi yang tercantum dalam RPS untuk pertemuan tersebut. (8)
+    // I: 3. Materi yang disampaikan sesuai dengan materi yang tercantum dalam RPS (8)
     // J: Bukti Foto / Dokumentasi Perkuliahan (9)
-    // K: Catatan Kendala atau Hal Penting (Perhatian Khusus) (10)
+    // K: Catatan Kendala atau Hal Penting (10)
+    // M: Program Studi / Prodi (12)
     function resolveColumnIndices(headerRow) {
       const indices = {
         timestamp: 0,
@@ -442,7 +469,8 @@
         q2: 7,         // Kolom H
         q3: 8,         // Kolom I
         foto: 9,       // Kolom J
-        kendala: 10    // Kolom K
+        kendala: 10,   // Kolom K
+        prodi: 12      // Kolom M (0-indexed: 12)
       };
 
       if (!headerRow || headerRow.length === 0) return indices;
@@ -472,6 +500,8 @@
           indices.foto = idx;
         } else if (lower.includes('catatan kendala') || lower.includes('hal penting') || lower.includes('kendala') || lower.includes('catatan')) {
           indices.kendala = idx;
+        } else if (lower.includes('prodi') || lower.includes('program studi')) {
+          indices.prodi = idx;
         }
       });
 
@@ -479,11 +509,15 @@
       if (headerRow.length > 4) {
         indices.matakuliah = 4;
       }
+      
+      // Utamakan Kolom M (index 12) jika ada untuk Prodi
+      if (headerRow.length > 12 && !headerRow[12].toLowerCase().includes('1.') && !headerRow[12].toLowerCase().includes('bukti')) {
+        indices.prodi = 12;
+      }
 
       return indices;
     }
 
-    // Load Live Data directly from published Google Sheet CSV
     async function loadDataFromSheet(isSilent = false) {
       const iconRekap = document.getElementById('refresh-icon-rekap');
       const iconStats = document.getElementById('refresh-icon-stats');
@@ -495,6 +529,7 @@
 
       let fetchedData = null;
 
+      // 1. Fetch ISIAN Sheet Data
       try {
         const response = await fetch(SPREADSHEET_CSV_URL + '&t=' + Date.now() + '&r=' + Math.random(), {
           cache: 'no-store',
@@ -531,11 +566,19 @@
                 tglJamCombined = ts;
               }
 
-              // Memastikan pengambilan Nama Mata Kuliah mengutamakan Kolom E (index 4)
+              // Pengambilan Nama Mata Kuliah dari Kolom E (index 4)
               const mk = (r[4] !== undefined && r[4] !== '') ? r[4] : ((colMap.matakuliah !== -1 ? r[colMap.matakuliah] : '') || '-');
               const offering = (colMap.offering !== -1 ? r[colMap.offering] : '') || '-';
+              
+              // Pengambilan Program Studi (Prodi) dari Kolom M (index 12)
+              let prodi = '-';
+              if (colMap.prodi !== -1 && r[colMap.prodi] !== undefined && r[colMap.prodi] !== '') {
+                prodi = r[colMap.prodi];
+              } else if (r[12] !== undefined && r[12] !== '') {
+                prodi = r[12];
+              }
 
-              if (!ts && !mk && !offering && tglJamCombined === '-') continue; // skip blank rows
+              if (!ts && !mk && !offering && tglJamCombined === '-') continue;
 
               parsed.push({
                 id: i,
@@ -544,6 +587,7 @@
                 tanggalJam: tglJamCombined,
                 matakuliah: mk,
                 offering: offering,
+                prodi: prodi,
                 q1: normalizeAnswer(colMap.q1 !== -1 ? r[colMap.q1] : ''),
                 q2: normalizeAnswer(colMap.q2 !== -1 ? r[colMap.q2] : ''),
                 q3: normalizeAnswer(colMap.q3 !== -1 ? r[colMap.q3] : ''),
@@ -555,7 +599,21 @@
           fetchedData = parsed;
         }
       } catch (err) {
-        console.warn("Koneksi Google Sheets CSV gagal:", err);
+        console.warn("Koneksi Google Sheets ISIAN CSV gagal:", err);
+      }
+
+      // 2. Fetch REKAP Sheet Data (gid=351565573)
+      try {
+        const responseRekap = await fetch(REKAP_CSV_URL + '&t=' + Date.now() + '&r=' + Math.random(), {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+        });
+        if (responseRekap.ok) {
+          const csvTextRekap = await responseRekap.text();
+          rekapSheetData = parseCSV(csvTextRekap);
+        }
+      } catch (errRekap) {
+        console.warn("Koneksi Google Sheets REKAP CSV gagal:", errRekap);
       }
 
       if (fetchedData !== null) {
@@ -572,45 +630,73 @@
       }
     }
 
-    // Dynamically update Filter Dropdown based on fetched courses
     function updateFilterOptions() {
       const filterMkSelect = document.getElementById('rekap-filter-mk');
-      if (!filterMkSelect) return;
+      const filterProdiSelect = document.getElementById('rekap-filter-prodi');
 
-      const currentSelection = filterMkSelect.value;
-      const uniqueCourses = new Set();
-      observations.forEach(item => {
-        if (item.matakuliah && item.matakuliah !== '-') {
-          uniqueCourses.add(item.matakuliah);
+      // Update Filter Mata Kuliah
+      if (filterMkSelect) {
+        const currentSelection = filterMkSelect.value;
+        const uniqueCourses = new Set();
+        observations.forEach(item => {
+          if (item.matakuliah && item.matakuliah !== '-') {
+            uniqueCourses.add(item.matakuliah);
+          }
+        });
+
+        const sortedCourses = Array.from(uniqueCourses).sort();
+        filterMkSelect.innerHTML = '<option value="ALL">Semua Mata Kuliah</option>';
+        sortedCourses.forEach(mk => {
+          const opt = document.createElement('option');
+          opt.value = mk;
+          opt.textContent = mk;
+          filterMkSelect.appendChild(opt);
+        });
+
+        if (sortedCourses.includes(currentSelection)) {
+          filterMkSelect.value = currentSelection;
         }
-      });
+      }
 
-      const sortedCourses = Array.from(uniqueCourses).sort();
+      // Update Filter Prodi
+      if (filterProdiSelect) {
+        const currentProdiSel = filterProdiSelect.value;
+        const uniqueProdis = new Set();
+        observations.forEach(item => {
+          if (item.prodi && item.prodi !== '-') {
+            uniqueProdis.add(item.prodi);
+          }
+        });
 
-      filterMkSelect.innerHTML = '<option value="ALL">Semua Mata Kuliah</option>';
-      sortedCourses.forEach(mk => {
-        const opt = document.createElement('option');
-        opt.value = mk;
-        opt.textContent = mk;
-        filterMkSelect.appendChild(opt);
-      });
+        const sortedProdis = Array.from(uniqueProdis).sort();
+        filterProdiSelect.innerHTML = '<option value="ALL">Semua Program Studi</option>';
+        sortedProdis.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p;
+          opt.textContent = p;
+          filterProdiSelect.appendChild(opt);
+        });
 
-      if (sortedCourses.includes(currentSelection)) {
-        filterMkSelect.value = currentSelection;
+        if (sortedProdis.includes(currentProdiSel)) {
+          filterProdiSelect.value = currentProdiSel;
+        }
       }
     }
 
-    // Render Table (Hides Email column)
     function renderRekapTable() {
       const tbody = document.getElementById('rekap-table-body');
       const emptyState = document.getElementById('rekap-empty-state');
       const filterMk = document.getElementById('rekap-filter-mk').value;
+      const filterProdi = document.getElementById('rekap-filter-prodi').value;
 
       tbody.innerHTML = '';
 
       let filteredData = observations;
       if (filterMk !== 'ALL') {
-        filteredData = observations.filter(item => item.matakuliah === filterMk);
+        filteredData = filteredData.filter(item => item.matakuliah === filterMk);
+      }
+      if (filterProdi !== 'ALL') {
+        filteredData = filteredData.filter(item => item.prodi === filterProdi);
       }
 
       if (filteredData.length === 0) {
@@ -643,9 +729,14 @@
           }
         }
 
+        const prodiBadge = item.prodi && item.prodi !== '-'
+          ? `<span class="px-2 py-1 rounded-md bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">${escapeHtml(item.prodi)}</span>`
+          : `<span class="text-slate-400 text-xs">-</span>`;
+
         tr.innerHTML = `
           <td class="p-3.5 text-center text-slate-500 font-medium">${index + 1}</td>
           <td class="p-3.5 text-slate-700 whitespace-nowrap font-mono text-xs">${escapeHtml(item.tanggalJam)}</td>
+          <td class="p-3.5">${prodiBadge}</td>
           <td class="p-3.5 font-semibold text-slate-800">${escapeHtml(item.matakuliah)}</td>
           <td class="p-3.5 text-center font-bold text-sky-700">${escapeHtml(item.offering)}</td>
           <td class="p-3.5 text-center">${badgeStyle(item.q1)}</td>
@@ -658,7 +749,6 @@
       });
     }
 
-    // Render Real-Time Statistics
     function renderStats() {
       const total = observations.length;
       document.getElementById('stat-total-count').textContent = total;
@@ -684,6 +774,9 @@
         document.getElementById('val-q3-ya').textContent = '0%';
         document.getElementById('val-q3-tidak').textContent = '0%';
 
+        document.getElementById('prodi-stats-container').innerHTML = `
+          <div class="col-span-full text-center py-6 text-slate-400 italic text-xs">Belum ada data untuk statistik Prodi.</div>
+        `;
         document.getElementById('course-stats-list').innerHTML = `
           <p class="text-xs text-slate-400 italic text-center py-6">Belum ada data untuk statistik sebaran.</p>
         `;
@@ -692,6 +785,7 @@
 
       let q1Ya = 0, q2Ya = 0, q3Ya = 0;
       const courseCounts = {};
+      const prodiCounts = {};
 
       observations.forEach(item => {
         if (item.q1 === 'YA') q1Ya++;
@@ -701,6 +795,15 @@
         if (item.matakuliah && item.matakuliah !== '-') {
           courseCounts[item.matakuliah] = (courseCounts[item.matakuliah] || 0) + 1;
         }
+
+        const prd = item.prodi && item.prodi !== '-' ? item.prodi : 'Lainnya / Non-Prodi';
+        if (!prodiCounts[prd]) {
+          prodiCounts[prd] = { total: 0, q1Ya: 0, q2Ya: 0, q3Ya: 0 };
+        }
+        prodiCounts[prd].total++;
+        if (item.q1 === 'YA') prodiCounts[prd].q1Ya++;
+        if (item.q2 === 'YA') prodiCounts[prd].q2Ya++;
+        if (item.q3 === 'YA') prodiCounts[prd].q3Ya++;
       });
 
       const q1Percent = Math.round((q1Ya / total) * 100);
@@ -725,6 +828,68 @@
       updateBar('bar-q1-ya', 'bar-q1-tidak', q1Percent, 100 - q1Percent);
       updateBar('bar-q2-ya', 'bar-q2-tidak', q2Percent, 100 - q2Percent);
       updateBar('bar-q3-ya', 'bar-q3-tidak', q3Percent, 100 - q3Percent);
+
+      // Render Section: Capaian & Sebaran Per Program Studi (Prodi)
+      const prodiContainer = document.getElementById('prodi-stats-container');
+      prodiContainer.innerHTML = '';
+      
+      const prodiEntries = Object.entries(prodiCounts).sort((a, b) => b[1].total - a[1].total);
+      document.getElementById('stat-prodi-total-badge').textContent = `${prodiEntries.length} Program Studi`;
+
+      prodiEntries.forEach(([prodiName, data]) => {
+        const q1Pct = Math.round((data.q1Ya / data.total) * 100);
+        const q2Pct = Math.round((data.q2Ya / data.total) * 100);
+        const q3Pct = Math.round((data.q3Ya / data.total) * 100);
+        const overallAvg = Math.round((q1Pct + q2Pct + q3Pct) / 3);
+
+        const card = document.createElement('div');
+        card.className = "bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3 shadow-sm";
+        card.innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+            <div>
+              <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+                <i class="fa-solid fa-book-bookmark text-sky-600"></i>
+                <span>${escapeHtml(prodiName)}</span>
+              </h4>
+              <p class="text-[11px] text-slate-500 font-medium">${data.total} Perkuliahan Diobservasi (${Math.round((data.total/total)*100)}% dari Total)</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-slate-500 font-semibold uppercase block">Keterlaksanaan</span>
+              <span class="text-lg font-extrabold text-sky-700">${overallAvg}%</span>
+            </div>
+          </div>
+          <div class="space-y-2 text-xs">
+            <div>
+              <div class="flex justify-between text-slate-600 font-medium mb-1">
+                <span>1. Kesesuaian Jadwal:</span>
+                <span class="font-bold text-emerald-600">${q1Pct}%</span>
+              </div>
+              <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div class="bg-emerald-500 h-full rounded-full" style="width: ${q1Pct}%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-slate-600 font-medium mb-1">
+                <span>2. Ketepatan Dosen (&lt;15m):</span>
+                <span class="font-bold text-indigo-600">${q2Pct}%</span>
+              </div>
+              <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div class="bg-indigo-500 h-full rounded-full" style="width: ${q2Pct}%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-slate-600 font-medium mb-1">
+                <span>3. Kesesuaian RPS:</span>
+                <span class="font-bold text-purple-600">${q3Pct}%</span>
+              </div>
+              <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div class="bg-purple-500 h-full rounded-full" style="width: ${q3Pct}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+        prodiContainer.appendChild(card);
+      });
 
       // Render Course Distribution list
       const courseListEl = document.getElementById('course-stats-list');
@@ -765,7 +930,7 @@
       tidakEl.textContent = pctTidak > 10 ? `${pctTidak}%` : '';
     }
 
-    // Export Rekap to .doc (HTML blob technique) - Email column hidden!
+    // Export Rekap to .doc (HTML blob technique) - Includes Prodi Column
     function downloadRecapDoc() {
       if (observations.length === 0) {
         showToast("Tidak ada data observasi untuk diunduh.", "error");
@@ -778,6 +943,7 @@
           <tr>
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${i + 1}</td>
             <td style="padding:8px; border:1px solid #cbd5e1;">${escapeHtml(item.tanggalJam)}</td>
+            <td style="padding:8px; border:1px solid #cbd5e1;"><b>${escapeHtml(item.prodi)}</b></td>
             <td style="padding:8px; border:1px solid #cbd5e1;"><b>${escapeHtml(item.matakuliah)}</b></td>
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${escapeHtml(item.offering)}</td>
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${item.q1}</td>
@@ -797,8 +963,8 @@
             body { font-family: 'Calibri', 'Arial', sans-serif; margin: 20px; }
             h2 { color: #0369a1; text-align: center; margin-bottom: 5px; }
             p.sub { text-align: center; color: #64748b; font-size: 12px; margin-top: 0; }
-            table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; }
-            th { background-color: #0284c7; color: #ffffff; padding: 10px; border: 1px solid #0284c7; text-align: center; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 15px; }
+            th { background-color: #0284c7; color: #ffffff; padding: 8px; border: 1px solid #0284c7; text-align: center; }
           </style>
         </head>
         <body>
@@ -807,14 +973,15 @@
           <table>
             <thead>
               <tr>
-                <th style="width:5%;">No</th>
-                <th style="width:15%;">Tanggal & Jam</th>
-                <th style="width:30%;">Nama Mata Kuliah</th>
-                <th style="width:10%;">Offering</th>
-                <th style="width:10%;">Sesuai Jadwal</th>
-                <th style="width:10%;">Tepat Waktu (&lt;15m)</th>
-                <th style="width:10%;">Sesuai RPS</th>
-                <th style="width:20%;">Kendala / Catatan</th>
+                <th style="width:4%;">No</th>
+                <th style="width:14%;">Tanggal & Jam</th>
+                <th style="width:15%;">Program Studi</th>
+                <th style="width:25%;">Nama Mata Kuliah</th>
+                <th style="width:8%;">Offering</th>
+                <th style="width:8%;">Sesuai Jadwal</th>
+                <th style="width:8%;">Tepat Waktu</th>
+                <th style="width:8%;">Sesuai RPS</th>
+                <th style="width:10%;">Kendala / Catatan</th>
               </tr>
             </thead>
             <tbody>
@@ -828,7 +995,7 @@
       downloadBlobAsDoc(htmlContent, 'Rekap_Observasi_Pembelajaran.doc');
     }
 
-    // Export Statistik to .doc
+    // Export Statistik to .doc (Includes Prodi Breakdown)
     function downloadStatsDoc() {
       const total = observations.length;
       if (total === 0) {
@@ -837,15 +1004,45 @@
       }
 
       let q1Ya = 0, q2Ya = 0, q3Ya = 0;
+      const prodiCounts = {};
+
       observations.forEach(item => {
         if (item.q1 === 'YA') q1Ya++;
         if (item.q2 === 'YA') q2Ya++;
         if (item.q3 === 'YA') q3Ya++;
+
+        const prd = item.prodi && item.prodi !== '-' ? item.prodi : 'Lainnya / Non-Prodi';
+        if (!prodiCounts[prd]) {
+          prodiCounts[prd] = { total: 0, q1Ya: 0, q2Ya: 0, q3Ya: 0 };
+        }
+        prodiCounts[prd].total++;
+        if (item.q1 === 'YA') prodiCounts[prd].q1Ya++;
+        if (item.q2 === 'YA') prodiCounts[prd].q2Ya++;
+        if (item.q3 === 'YA') prodiCounts[prd].q3Ya++;
       });
 
       const q1Pct = Math.round((q1Ya / total) * 100);
       const q2Pct = Math.round((q2Ya / total) * 100);
       const q3Pct = Math.round((q3Ya / total) * 100);
+
+      let prodiRows = '';
+      Object.entries(prodiCounts).forEach(([prodiName, pData], idx) => {
+        const p1Pct = Math.round((pData.q1Ya / pData.total) * 100);
+        const p2Pct = Math.round((pData.q2Ya / pData.total) * 100);
+        const p3Pct = Math.round((pData.q3Ya / pData.total) * 100);
+        const pAvg = Math.round((p1Pct + p2Pct + p3Pct) / 3);
+        prodiRows += `
+          <tr>
+            <td style="text-align:center;">${idx + 1}</td>
+            <td><b>${escapeHtml(prodiName)}</b></td>
+            <td style="text-align:center;">${pData.total}</td>
+            <td style="text-align:center;">${p1Pct}%</td>
+            <td style="text-align:center;">${p2Pct}%</td>
+            <td style="text-align:center;">${p3Pct}%</td>
+            <td style="text-align:center; font-weight:bold; color:#0284c7;">${pAvg}%</td>
+          </tr>
+        `;
+      });
 
       const htmlContent = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
@@ -855,7 +1052,7 @@
           <style>
             body { font-family: 'Calibri', 'Arial', sans-serif; margin: 25px; line-height: 1.5; }
             h2 { color: #075985; border-bottom: 2px solid #0284c7; padding-bottom: 5px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
             th { background-color: #0f172a; color: #ffffff; padding: 8px; border: 1px solid #0f172a; }
             td { padding: 8px; border: 1px solid #cbd5e1; }
           </style>
@@ -865,7 +1062,7 @@
           <p><b>Total Responden / Perkuliahan Diobservasi:</b> ${total} Kelas</p>
           <p><b>Tanggal Laporan Generated:</b> ${new Date().toLocaleString('id-ID')}</p>
           
-          <h3>Ringkasan Keterlaksanaan Indikator Utama</h3>
+          <h3>1. Ringkasan Keterlaksanaan Indikator Utama</h3>
           <table>
             <thead>
               <tr>
@@ -894,6 +1091,24 @@
                 <td style="text-align:center;">${total - q3Ya}</td>
                 <td style="text-align:center; font-weight:bold; color:#0369a1;">${q3Pct}%</td>
               </tr>
+            </tbody>
+          </table>
+
+          <h3>2. Capaian Keterlaksanaan Per Program Studi (Prodi)</h3>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:5%;">No</th>
+                <th style="width:35%;">Program Studi</th>
+                <th style="width:12%;">Total Observasi</th>
+                <th style="width:12%;">Sesuai Jadwal</th>
+                <th style="width:12%;">Tepat Waktu</th>
+                <th style="width:12%;">Sesuai RPS</th>
+                <th style="width:12%;">Rata-Rata Capaian</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${prodiRows}
             </tbody>
           </table>
         </body>
