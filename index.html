@@ -140,7 +140,6 @@
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-md-center justify-between gap-4">
         <div>
           <h2 class="text-xl font-bold text-slate-800">Tabel Rekapitulasi Observasi</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Daftar perkuliahan yang telah diobservasi (Tersinkronisasi langsung dengan Google Sheets sheet ISIAN. Email disembunyikan).</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <!-- Filter Dropdown Prodi -->
@@ -199,7 +198,6 @@
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-md-center justify-between gap-4">
         <div>
           <h2 class="text-xl font-bold text-slate-800">Statistik Observasi Keterlaksanaan</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Analisis hasil pengisian observasi secara riil berdasarkan data dari Google Sheets ISIAN & REKAP.</p>
         </div>
         <div class="flex items-center space-x-2">
           <button onclick="loadDataFromSheet()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-all">
@@ -356,6 +354,59 @@
     // Application State Storage
     let observations = [];
     let rekapSheetData = [];
+
+    // Helper to extract master/target courses per Prodi from sheet REKAP
+    function getProdiTargetFromRekap() {
+      const targetMap = {}; // prodi -> { totalTarget: number, courses: Set }
+
+      if (!rekapSheetData || rekapSheetData.length <= 1) return targetMap;
+
+      const header = rekapSheetData[0];
+      let prodiIdx = -1;
+      let mkIdx = -1;
+      let totalIdx = -1;
+
+      header.forEach((h, i) => {
+        const val = String(h).toLowerCase();
+        if (val.includes('prodi') || val.includes('program studi')) prodiIdx = i;
+        if (val.includes('mata kuliah') || val.includes('matakuliah') || val.includes('nama mk') || val.includes('mk')) mkIdx = i;
+        if (val.includes('total') || val.includes('jumlah') || val.includes('target')) totalIdx = i;
+      });
+
+      if (prodiIdx === -1) prodiIdx = 0;
+
+      for (let i = 1; i < rekapSheetData.length; i++) {
+        const row = rekapSheetData[i];
+        if (!row || row.length === 0) continue;
+
+        const prodiName = row[prodiIdx] ? row[prodiIdx].trim() : '';
+        if (!prodiName || prodiName.toLowerCase().startsWith('total') || prodiName.toLowerCase().startsWith('jumlah')) continue;
+
+        if (!targetMap[prodiName]) {
+          targetMap[prodiName] = { totalTarget: 0, courses: new Set() };
+        }
+
+        if (mkIdx !== -1 && row[mkIdx]) {
+          const mkName = row[mkIdx].trim();
+          if (mkName) targetMap[prodiName].courses.add(mkName);
+        }
+
+        if (totalIdx !== -1 && row[totalIdx]) {
+          const num = parseInt(row[totalIdx], 10);
+          if (!isNaN(num) && num > 0) {
+            targetMap[prodiName].totalTarget = num;
+          }
+        }
+      }
+
+      Object.keys(targetMap).forEach(p => {
+        if (targetMap[p].totalTarget === 0 && targetMap[p].courses.size > 0) {
+          targetMap[p].totalTarget = targetMap[p].courses.size;
+        }
+      });
+
+      return targetMap;
+    }
 
     // Navigation Tab Switcher
     function switchTab(tabId) {
@@ -798,9 +849,12 @@
 
         const prd = item.prodi && item.prodi !== '-' ? item.prodi : 'Lainnya / Non-Prodi';
         if (!prodiCounts[prd]) {
-          prodiCounts[prd] = { total: 0, q1Ya: 0, q2Ya: 0, q3Ya: 0 };
+          prodiCounts[prd] = { total: 0, q1Ya: 0, q2Ya: 0, q3Ya: 0, uniqueMKs: new Set() };
         }
         prodiCounts[prd].total++;
+        if (item.matakuliah && item.matakuliah !== '-') {
+          prodiCounts[prd].uniqueMKs.add(item.matakuliah);
+        }
         if (item.q1 === 'YA') prodiCounts[prd].q1Ya++;
         if (item.q2 === 'YA') prodiCounts[prd].q2Ya++;
         if (item.q3 === 'YA') prodiCounts[prd].q3Ya++;
@@ -829,6 +883,9 @@
       updateBar('bar-q2-ya', 'bar-q2-tidak', q2Percent, 100 - q2Percent);
       updateBar('bar-q3-ya', 'bar-q3-tidak', q3Percent, 100 - q3Percent);
 
+      // Extract target data per Prodi from Sheet REKAP
+      const rekapTargetMap = getProdiTargetFromRekap();
+
       // Render Section: Capaian & Sebaran Per Program Studi (Prodi)
       const prodiContainer = document.getElementById('prodi-stats-container');
       prodiContainer.innerHTML = '';
@@ -842,6 +899,19 @@
         const q3Pct = Math.round((data.q3Ya / data.total) * 100);
         const overallAvg = Math.round((q1Pct + q2Pct + q3Pct) / 3);
 
+        const observedCount = data.uniqueMKs.size;
+        
+        // Find matching target in rekapTargetMap (case-insensitive search)
+        let rekapTargetObj = rekapTargetMap[prodiName];
+        if (!rekapTargetObj) {
+          const foundKey = Object.keys(rekapTargetMap).find(k => k.toLowerCase() === prodiName.toLowerCase());
+          if (foundKey) rekapTargetObj = rekapTargetMap[foundKey];
+        }
+
+        const totalTarget = rekapTargetObj ? rekapTargetObj.totalTarget : 0;
+        const unobservedCount = totalTarget > 0 ? Math.max(0, totalTarget - observedCount) : '-';
+        const coveragePct = totalTarget > 0 ? Math.min(100, Math.round((observedCount / totalTarget) * 100)) : 100;
+
         const card = document.createElement('div');
         card.className = "bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3 shadow-sm";
         card.innerHTML = `
@@ -851,14 +921,40 @@
                 <i class="fa-solid fa-book-bookmark text-sky-600"></i>
                 <span>${escapeHtml(prodiName)}</span>
               </h4>
-              <p class="text-[11px] text-slate-500 font-medium">${data.total} Perkuliahan Diobservasi (${Math.round((data.total/total)*100)}% dari Total)</p>
+              <p class="text-[11px] text-slate-500 font-medium">${data.total} Isian Form (${Math.round((data.total/total)*100)}% dari Total Observasi)</p>
             </div>
             <div class="text-right">
               <span class="text-xs text-slate-500 font-semibold uppercase block">Keterlaksanaan</span>
               <span class="text-lg font-extrabold text-sky-700">${overallAvg}%</span>
             </div>
           </div>
-          <div class="space-y-2 text-xs">
+
+          <!-- Status Observasi MK per Prodi -->
+          <div class="bg-white p-3 rounded-lg border border-slate-200 space-y-2">
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-700">
+              <span class="flex items-center space-x-1">
+                <i class="fa-solid fa-list-check text-sky-600"></i>
+                <span>Status Observasi Mata Kuliah</span>
+              </span>
+              <span class="text-slate-500 font-mono text-[11px]">${coveragePct}% Tercover</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+              <div class="bg-emerald-50 border border-emerald-200 p-2 rounded-lg">
+                <span class="block font-bold text-emerald-700 text-base">${observedCount}</span>
+                <span class="text-[10px] text-emerald-600 font-medium">Diobservasi</span>
+              </div>
+              <div class="bg-amber-50 border border-amber-200 p-2 rounded-lg">
+                <span class="block font-bold text-amber-700 text-base">${unobservedCount}</span>
+                <span class="text-[10px] text-amber-600 font-medium">Belum Diobservasi</span>
+              </div>
+              <div class="bg-slate-100 border border-slate-200 p-2 rounded-lg">
+                <span class="block font-bold text-slate-700 text-base">${totalTarget > 0 ? totalTarget : '-'}</span>
+                <span class="text-[10px] text-slate-500 font-medium">Total Target MK</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2 text-xs pt-1">
             <div>
               <div class="flex justify-between text-slate-600 font-medium mb-1">
                 <span>1. Kesesuaian Jadwal:</span>
@@ -1013,9 +1109,12 @@
 
         const prd = item.prodi && item.prodi !== '-' ? item.prodi : 'Lainnya / Non-Prodi';
         if (!prodiCounts[prd]) {
-          prodiCounts[prd] = { total: 0, q1Ya: 0, q2Ya: 0, q3Ya: 0 };
+          prodiCounts[prd] = { total: 0, q1Ya: 0, q2Ya: 0, q3Ya: 0, uniqueMKs: new Set() };
         }
         prodiCounts[prd].total++;
+        if (item.matakuliah && item.matakuliah !== '-') {
+          prodiCounts[prd].uniqueMKs.add(item.matakuliah);
+        }
         if (item.q1 === 'YA') prodiCounts[prd].q1Ya++;
         if (item.q2 === 'YA') prodiCounts[prd].q2Ya++;
         if (item.q3 === 'YA') prodiCounts[prd].q3Ya++;
@@ -1025,16 +1124,31 @@
       const q2Pct = Math.round((q2Ya / total) * 100);
       const q3Pct = Math.round((q3Ya / total) * 100);
 
+      const rekapTargetMap = getProdiTargetFromRekap();
+
       let prodiRows = '';
       Object.entries(prodiCounts).forEach(([prodiName, pData], idx) => {
         const p1Pct = Math.round((pData.q1Ya / pData.total) * 100);
         const p2Pct = Math.round((pData.q2Ya / pData.total) * 100);
         const p3Pct = Math.round((pData.q3Ya / pData.total) * 100);
         const pAvg = Math.round((p1Pct + p2Pct + p3Pct) / 3);
+
+        const obsCount = pData.uniqueMKs.size;
+        let rTarget = rekapTargetMap[prodiName];
+        if (!rTarget) {
+          const foundKey = Object.keys(rekapTargetMap).find(k => k.toLowerCase() === prodiName.toLowerCase());
+          if (foundKey) rTarget = rekapTargetMap[foundKey];
+        }
+        const totTarget = rTarget ? rTarget.totalTarget : '-';
+        const unObsCount = typeof totTarget === 'number' ? Math.max(0, totTarget - obsCount) : '-';
+
         prodiRows += `
           <tr>
             <td style="text-align:center;">${idx + 1}</td>
             <td><b>${escapeHtml(prodiName)}</b></td>
+            <td style="text-align:center; font-weight:bold; color:#047857;">${obsCount}</td>
+            <td style="text-align:center; font-weight:bold; color:#b45309;">${unObsCount}</td>
+            <td style="text-align:center;">${totTarget}</td>
             <td style="text-align:center;">${pData.total}</td>
             <td style="text-align:center;">${p1Pct}%</td>
             <td style="text-align:center;">${p2Pct}%</td>
@@ -1052,9 +1166,9 @@
           <style>
             body { font-family: 'Calibri', 'Arial', sans-serif; margin: 25px; line-height: 1.5; }
             h2 { color: #075985; border-bottom: 2px solid #0284c7; padding-bottom: 5px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-            th { background-color: #0f172a; color: #ffffff; padding: 8px; border: 1px solid #0f172a; }
-            td { padding: 8px; border: 1px solid #cbd5e1; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
+            th { background-color: #0f172a; color: #ffffff; padding: 6px; border: 1px solid #0f172a; }
+            td { padding: 6px; border: 1px solid #cbd5e1; }
           </style>
         </head>
         <body>
@@ -1094,17 +1208,20 @@
             </tbody>
           </table>
 
-          <h3>2. Capaian Keterlaksanaan Per Program Studi (Prodi)</h3>
+          <h3>2. Capaian Keterlaksanaan & Status Observasi Per Program Studi (Prodi)</h3>
           <table>
             <thead>
               <tr>
-                <th style="width:5%;">No</th>
-                <th style="width:35%;">Program Studi</th>
-                <th style="width:12%;">Total Observasi</th>
-                <th style="width:12%;">Sesuai Jadwal</th>
-                <th style="width:12%;">Tepat Waktu</th>
-                <th style="width:12%;">Sesuai RPS</th>
-                <th style="width:12%;">Rata-Rata Capaian</th>
+                <th style="width:4%;">No</th>
+                <th style="width:24%;">Program Studi</th>
+                <th style="width:9%;">Diobservasi</th>
+                <th style="width:9%;">Belum Diobservasi</th>
+                <th style="width:9%;">Total MK</th>
+                <th style="width:9%;">Total Isian</th>
+                <th style="width:9%;">Sesuai Jadwal</th>
+                <th style="width:9%;">Tepat Waktu</th>
+                <th style="width:9%;">Sesuai RPS</th>
+                <th style="width:9%;">Rata-Rata Capaian</th>
               </tr>
             </thead>
             <tbody>
