@@ -512,7 +512,7 @@
           <h2 class="text-lg font-bold text-slate-800">Live Google Spreadsheet</h2>
           <p class="text-xs text-slate-500">Tampilan langsung data respons dari Google Sheets yang terhubung.</p>
         </div>
-        <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQP8rBd3Ym2879dMSs-6ITFp8FHmRNOpYPQgYoRMuoUU0riBIQiEOuSeWrp19Xew4twgqBUNv8SsFhm/pubhtml?gid=781621413&single=true" target="_blank"
+        <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vTbob6QC8QSd8o9Q5Ib76VxMG-4DZmc5RpYxpovYsXjT-Nvl69fdZxZ-rH2a2VvyaAawwuW9NZUcwUz/pubhtml?gid=823395144&single=true" target="_blank"
           class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-all">
           <span>Buka di Tab Baru</span>
           <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
@@ -520,7 +520,7 @@
       </div>
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[650px] w-full">
         <iframe
-          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQP8rBd3Ym2879dMSs-6ITFp8FHmRNOpYPQgYoRMuoUU0riBIQiEOuSeWrp19Xew4twgqBUNv8SsFhm/pubhtml?gid=781621413&amp;single=true&amp;widget=true&amp;headers=false"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTbob6QC8QSd8o9Q5Ib76VxMG-4DZmc5RpYxpovYsXjT-Nvl69fdZxZ-rH2a2VvyaAawwuW9NZUcwUz/pubhtml?gid=823395144&amp;single=true&amp;widget=true&amp;headers=false"
           class="w-full h-full border-0">
         </iframe>
       </div>
@@ -581,8 +581,29 @@ function doPost(e) {
     }
     
     var data = JSON.parse(e.postData.contents);
+    var photoUrl = '';
     
-    // Tambah baris data baru
+    // Opsi Simpan Foto: Jika menerima Base64, konversi otomatis menjadi file Google Drive
+    if (data.foto && data.foto.indexOf('data:image') === 0) {
+      try {
+        var base64Data = data.foto.split(',')[1];
+        var contentType = data.foto.split(',')[0].split(':')[1].split(';')[0];
+        var decoded = Utilities.base64Decode(base64Data);
+        var fileName = 'Dokumentasi_' + (data.matakuliah || 'Obs').replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now() + '.jpg';
+        var blob = Utilities.newBlob(decoded, contentType, fileName);
+        
+        // Simpan file ke Google Drive
+        var file = DriveApp.createFile(blob);
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        photoUrl = "https://drive.google.com/uc?export=view&id=" + file.getId();
+      } catch (fErr) {
+        photoUrl = 'Gagal upload Drive: ' + fErr.toString();
+      }
+    } else {
+      photoUrl = data.foto || '-';
+    }
+    
+    // Tambah baris data baru dengan URL Foto Google Drive
     sheet.appendRow([
       data.timestamp || new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}),
       data.email || '',
@@ -592,12 +613,12 @@ function doPost(e) {
       data.q1 || '',
       data.q2 || '',
       data.q3 || '',
-      data.foto || '',
+      photoUrl,
       data.kendala || ''
     ]);
     
     return ContentService
-      .createTextOutput(JSON.stringify({ "status": "success", "message": "Data berhasil disimpan" }))
+      .createTextOutput(JSON.stringify({ "status": "success", "message": "Data berhasil disimpan", "photoUrl": photoUrl }))
       .setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
@@ -1345,9 +1366,20 @@ function doPost(e) {
     // Local Data Storage Management
     function saveLocalData() {
       try {
-        localStorage.setItem('obs_pembelajaran_data', JSON.stringify(observations));
+        // Filter out large Base64 photo strings to stay within localStorage 5MB limit
+        const lightweightData = observations.slice(0, 50).map(item => {
+          const cleanItem = { ...item };
+          if (cleanItem.foto && cleanItem.foto.length > 300) {
+            cleanItem.foto = ''; // Keep photo in active memory/Google Sheets, omit from localStorage
+          }
+          return cleanItem;
+        });
+        localStorage.setItem('obs_pembelajaran_data', JSON.stringify(lightweightData));
       } catch (e) {
-        console.error("Storage limit reached", e);
+        // Fallback gracefully if browser storage quota is completely full
+        try {
+          localStorage.removeItem('obs_pembelajaran_data');
+        } catch (err) {}
       }
     }
 
@@ -1393,9 +1425,16 @@ function doPost(e) {
           ? `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800">YA</span>`
           : `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-800">TIDAK</span>`;
 
-        const photoTd = item.foto 
-          ? `<button onclick="previewPhotoModal('${item.foto}')" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1"><i class="fa-solid fa-image"></i><span>Lihat</span></button>`
-          : `<span class="text-slate-400 text-xs">-</span>`;
+        let photoTd = `<span class="text-slate-400 text-xs">-</span>`;
+        if (item.foto) {
+          if (item.foto.startsWith('http')) {
+            // URL Google Drive
+            photoTd = `<a href="${item.foto}" target="_blank" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>Buka Foto</span></a>`;
+          } else if (item.foto.startsWith('data:image')) {
+            // Base64 lokal / temporer
+            photoTd = `<button onclick="previewPhotoModal('${item.foto}')" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1"><i class="fa-solid fa-image"></i><span>Lihat</span></button>`;
+          }
+        }
 
         tr.innerHTML = `
           <td class="p-3.5 text-center text-slate-500 font-medium">${index + 1}</td>
