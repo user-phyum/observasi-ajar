@@ -32,10 +32,6 @@
     }
   </script>
   <style>
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-    }
     /* Custom scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
@@ -170,7 +166,6 @@
               <select id="matakuliah" required
                 class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm appearance-none pr-10">
                 <option value="" disabled selected>-- Pilih Mata Kuliah --</option>
-                <!-- Populated via script or standard options -->
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
                 <i class="fa-solid fa-chevron-down text-xs"></i>
@@ -187,7 +182,6 @@
               <select id="offering" required
                 class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none text-sm appearance-none pr-10">
                 <option value="" disabled selected>-- Pilih Offering --</option>
-                <!-- Populated via JS -->
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
                 <i class="fa-solid fa-chevron-down text-xs"></i>
@@ -276,7 +270,7 @@
               <div class="space-y-1">
                 <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
                 <p class="text-xs text-slate-600 font-medium">Klik atau seret foto dokumentasi di sini</p>
-                <p class="text-[10px] text-slate-400">Format: JPG, PNG, WEBP (Maks. 5MB)</p>
+                <p class="text-[10px] text-slate-400">Format: JPG, PNG, WEBP (Maks. 5MB - Otomatis Terkompresi & Terunggah ke Google Drive)</p>
               </div>
             </div>
 
@@ -363,7 +357,7 @@
                 <th class="p-3.5 text-center">Jadwal Sesuai</th>
                 <th class="p-3.5 text-center">Tepat Waktu (&lt;15m)</th>
                 <th class="p-3.5 text-center">Sesuai RPS</th>
-                <th class="p-3.5 text-center">Foto</th>
+                <th class="p-3.5 text-center">Foto Dokumentasi</th>
                 <th class="p-3.5">Kendala / Catatan</th>
               </tr>
             </thead>
@@ -505,132 +499,6 @@
       </div>
     </section>
 
-    <!-- ================= TAB 4: SPREADSHEET VIEWER ================= -->
-    <section id="sheet-tab" class="tab-content hidden space-y-4">
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <h2 class="text-lg font-bold text-slate-800">Live Google Spreadsheet</h2>
-          <p class="text-xs text-slate-500">Tampilan langsung data respons dari Google Sheets yang terhubung.</p>
-        </div>
-        <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vTbob6QC8QSd8o9Q5Ib76VxMG-4DZmc5RpYxpovYsXjT-Nvl69fdZxZ-rH2a2VvyaAawwuW9NZUcwUz/pubhtml?gid=823395144&single=true" target="_blank"
-          class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-1.5 transition-all">
-          <span>Buka di Tab Baru</span>
-          <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-        </a>
-      </div>
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[650px] w-full">
-        <iframe
-          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTbob6QC8QSd8o9Q5Ib76VxMG-4DZmc5RpYxpovYsXjT-Nvl69fdZxZ-rH2a2VvyaAawwuW9NZUcwUz/pubhtml?gid=823395144&amp;single=true&amp;widget=true&amp;headers=false"
-          class="w-full h-full border-0">
-        </iframe>
-      </div>
-    </section>
-
-    <!-- ================= TAB 5: APPS SCRIPT CODE ================= -->
-    <section id="script-tab" class="tab-content hidden space-y-6">
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
-              <i class="fa-solid fa-code text-xl"></i>
-            </div>
-            <div>
-              <h2 class="text-xl font-bold text-slate-800">Kode Google Apps Script Backend</h2>
-              <p class="text-xs text-slate-500">Gunakan kode di bawah ini pada Google Sheets Anda untuk menyimpan otomatis isian form.</p>
-            </div>
-          </div>
-          <button onclick="copyAppsScript()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-lg flex items-center space-x-1.5 shadow">
-            <i class="fa-regular fa-copy"></i>
-            <span>Salin Kode</span>
-          </button>
-        </div>
-
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-800 space-y-1">
-          <p class="font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Langkah Integrasi Ke Google Sheet:</p>
-          <ol class="list-decimal pl-4 space-y-1 mt-1">
-            <li>Buka Google Spreadsheet tujuan Anda.</li>
-            <li>Klik menu <span class="font-semibold">Extensions (Ekstensi) &gt; Apps Script</span>.</li>
-            <li>Hapus semua kode default dan tempelkan (paste) kode di bawah ini.</li>
-            <li>Klik <span class="font-semibold">Deploy (Terapkan) &gt; New Deployment (Penerapan Baru)</span>.</li>
-            <li>Pilih tipe <span class="font-semibold">Web App</span>, atur <em>Who has access</em> ke <span class="font-semibold">Anyone (Siapa Saja)</span>, lalu klik Deploy.</li>
-          </ol>
-        </div>
-
-        <div class="relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
-          <pre class="p-4 text-xs font-mono text-emerald-400 overflow-x-auto leading-relaxed" id="apps-script-code">
-function doPost(e) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('Observasi') || ss.getActiveSheet();
-    
-    // Buat Header jika sheet masih kosong
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow([
-        'Timestamp',
-        'Email Pengamat',
-        'Tanggal & Jam Perkuliahan',
-        'Nama Mata Kuliah',
-        'Nama Offering',
-        '1. Sesuai Jadwal',
-        '2. Dosen Tepat Waktu (<15m)',
-        '3. Sesuai RPS',
-        'URL Foto / Dokumen',
-        'Kendala / Catatan'
-      ]);
-      sheet.getRange(1, 1, 1, 10).setFontWeight('bold').setBackground('#0284c7').setFontColor('#ffffff');
-    }
-    
-    var data = JSON.parse(e.postData.contents);
-    var photoUrl = '';
-    
-    // Opsi Simpan Foto: Jika menerima Base64, konversi otomatis menjadi file Google Drive
-    if (data.foto && data.foto.indexOf('data:image') === 0) {
-      try {
-        var base64Data = data.foto.split(',')[1];
-        var contentType = data.foto.split(',')[0].split(':')[1].split(';')[0];
-        var decoded = Utilities.base64Decode(base64Data);
-        var fileName = 'Dokumentasi_' + (data.matakuliah || 'Obs').replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now() + '.jpg';
-        var blob = Utilities.newBlob(decoded, contentType, fileName);
-        
-        // Simpan file ke Google Drive
-        var file = DriveApp.createFile(blob);
-        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-        photoUrl = "https://drive.google.com/uc?export=view&id=" + file.getId();
-      } catch (fErr) {
-        photoUrl = 'Gagal upload Drive: ' + fErr.toString();
-      }
-    } else {
-      photoUrl = data.foto || '-';
-    }
-    
-    // Tambah baris data baru dengan URL Foto Google Drive
-    sheet.appendRow([
-      data.timestamp || new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}),
-      data.email || '',
-      data.tanggalJam || '',
-      data.matakuliah || '',
-      data.offering || '',
-      data.q1 || '',
-      data.q2 || '',
-      data.q3 || '',
-      photoUrl,
-      data.kendala || ''
-    ]);
-    
-    return ContentService
-      .createTextOutput(JSON.stringify({ "status": "success", "message": "Data berhasil disimpan", "photoUrl": photoUrl }))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-  } catch (error) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ "status": "error", "message": error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}</pre>
-        </div>
-      </div>
-    </section>
-
   </main>
 
   <!-- Footer -->
@@ -641,109 +509,45 @@ function doPost(e) {
   </footer>
 
   <script>
-    // Daftar Mata Kuliah Lengkap dari User
+    // Daftar Mata Kuliah Lengkap
     const MATA_KULIAH_LIST = [
-      "Antar Muka Komputer untuk Pembelajaran Fisika",
-      "Astronomi",
-      "Bahasa Inggris untuk Fisika",
-      "Bahasa Inggris untuk Pendidikan Fisika",
-      "Cahaya dan Interaksinya",
-      "Dasar-Dasar Instrumentasi Fisika",
-      "Disertasi",
-      "Elektrodinamika",
-      "Elektromagnetika",
-      "Elektronika",
-      "Elektronika II",
-      "Etika Keilmuan",
-      "Filsafat Ilmu",
-      "Fisika Atom, Inti dan Partikel",
-      "Fisika Batuan",
-      "Fisika Citra",
-      "Fisika Dasar I",
-      "Fisika Dasar III",
-      "Fisika Energi",
-      "Fisika Gunung Api dan Panas Bumi",
-      "Fisika Klasik Lanjut",
-      "Fisika Komputasi Lanjut",
-      "Fisika Kuantum",
-      "Fisika Magnetik Lanjut",
-      "Fisika Matematika I",
-      "Fisika Material",
-      "Fisika Modern",
-      "Fisika Polimer",
-      "Fisika Termal dan Statistika",
-      "Fisika untuk Biologi",
-      "Fisika Untuk Bioteknologi",
-      "Fisika untuk Pendidikan Biologi",
-      "Fisika Zat Padat",
-      "Geofisika",
-      "Geofisika Terapan",
-      "Geologi",
-      "Getaran dan Gelombang",
-      "Instrumentasi Medis",
-      "Kajian Kritis Fisika",
-      "Kajian Problematika Terkini Pendidikan Fisika",
-      "Kapita Selekta Fisika Lanjut",
-      "Karakterisasi Material",
-      "Kecerdasan Buatan dalam Fisika",
-      "Kewirausahaan dan Karier Sain",
-      "Kewirausahaan dan Karier Sains",
-      "Klimatologi",
-      "Komputasi Sistem Fisis",
-      "Komunikasi Optik",
-      "Kristalografi",
-      "Kristalografi Lanjut",
-      "Kuantum Zat Mampat",
-      "Media Pembelajaran Fisika Berbasis Lingkungan",
-      "Mekanika Klasik",
-      "Mekanika Kuantum",
-      "Mekanika Kuantum Lanjut",
-      "Mekanika Statistik",
-      "Metode Penelitian Fisika",
-      "Metode Penelitian Fisika Berbasis Lingkungan",
-      "Metodologi Penelitian dan Statistik Pendidikan Fisika",
-      "Metodologi Penelitian Kuantitatif",
-      "Nanomaterial",
-      "Nanomaterial Lanjut",
-      "Pembangunan Berkelanjutan untuk Masyarakat",
-      "Pembangunan Berkelanjutan Untuk Masyarakat",
-      "Pembelajaran Fisika",
-      "Pemodelan dan Inversi Geofisika",
-      "Pengembangan Asesmen Pendidikan Fisika",
-      "Pengembangan Karakter Fisika Peserta Didik",
-      "Pengembangan Pembelajaran Fisika Inovatif",
-      "Pengembangan Proposal Teisis",
-      "Pengembangan Proposal Tugas Akhir Doktor",
-      "Penginderaan Jarak Jauh",
-      "Perencanaan Pembelajaran Fisika",
-      "Sains Dasar Berkelanjutan (SDB)",
-      "Sensor dan Aktuator",
-      "Sensor optik",
-      "Sintesa Penelitian Pendidikan Fisika",
-      "Sintesis Material Alam Lanjut",
-      "Skripsi",
-      "Skripsi Fisika",
-      "Teori dan Psikologi Belajar Fisika",
-      "Teori Kuantum Material",
-      "Teori Relativitas",
-      "Termodinamika dan Fisika Stastistik",
-      "Termodinamika Mineral",
-      "Tesis",
-      "Tugas Akhir Magister"
+      "Antar Muka Komputer untuk Pembelajaran Fisika", "Astronomi", "Bahasa Inggris untuk Fisika",
+      "Bahasa Inggris untuk Pendidikan Fisika", "Cahaya dan Interaksinya", "Dasar-Dasar Instrumentasi Fisika",
+      "Disertasi", "Elektrodinamika", "Elektromagnetika", "Elektronika", "Elektronika II", "Etika Keilmuan",
+      "Filsafat Ilmu", "Fisika Atom, Inti dan Partikel", "Fisika Batuan", "Fisika Citra", "Fisika Dasar I",
+      "Fisika Dasar III", "Fisika Energi", "Fisika Gunung Api dan Panas Bumi", "Fisika Klasik Lanjut",
+      "Fisika Komputasi Lanjut", "Fisika Kuantum", "Fisika Magnetik Lanjut", "Fisika Matematika I",
+      "Fisika Material", "Fisika Modern", "Fisika Polimer", "Fisika Termal dan Statistika", "Fisika untuk Biologi",
+      "Fisika Untuk Bioteknologi", "Fisika untuk Pendidikan Biologi", "Fisika Zat Padat", "Geofisika",
+      "Geofisika Terapan", "Geologi", "Getaran dan Gelombang", "Instrumentasi Medis", "Kajian Kritis Fisika",
+      "Kajian Problematika Terkini Pendidikan Fisika", "Kapita Selekta Fisika Lanjut", "Karakterisasi Material",
+      "Kecerdasan Buatan dalam Fisika", "Kewirausahaan dan Karier Sain", "Kewirausahaan dan Karier Sains",
+      "Klimatologi", "Komputasi Sistem Fisis", "Komunikasi Optik", "Kristalografi", "Kristalografi Lanjut",
+      "Kuantum Zat Mampat", "Media Pembelajaran Fisika Berbasis Lingkungan", "Mekanika Klasik", "Mekanika Kuantum",
+      "Mekanika Kuantum Lanjut", "Mekanika Statistik", "Metode Penelitian Fisika", "Metode Penelitian Fisika Berbasis Lingkungan",
+      "Metodologi Penelitian dan Statistik Pendidikan Fisika", "Metodologi Penelitian Kuantitatif", "Nanomaterial",
+      "Nanomaterial Lanjut", "Pembangunan Berkelanjutan untuk Masyarakat", "Pembangunan Berkelanjutan Untuk Masyarakat",
+      "Pembelajaran Fisika", "Pemodelan dan Inversi Geofisika", "Pengembangan Asesmen Pendidikan Fisika",
+      "Pengembangan Karakter Fisika Peserta Didik", "Pengembangan Pembelajaran Fisika Inovatif", "Pengembangan Proposal Teisis",
+      "Pengembangan Proposal Tugas Akhir Doktor", "Penginderaan Jarak Jauh", "Perencanaan Pembelajaran Fisika",
+      "Sains Dasar Berkelanjutan (SDB)", "Sensor dan Aktuator", "Sensor optik", "Sintesa Penelitian Pendidikan Fisika",
+      "Sintesis Material Alam Lanjut", "Skripsi", "Skripsi Fisika", "Teori dan Psikologi Belajar Fisika",
+      "Teori Kuantum Material", "Teori Relativitas", "Termodinamika dan Fisika Stastistik", "Termodinamika Mineral",
+      "Tesis", "Tugas Akhir Magister"
     ];
 
-    // Daftar Offering Lengkap dari User
+    // Daftar Offering Lengkap
     const OFFERING_LIST = [
       "A", "AB", "ABC", "AM", "B", "BD", "C", "CD", "D", "E", "G", "H", "I", "J",
       "M", "N", "O", "P1", "P10", "P11", "P12", "P13", "P14", "P15", "P2", "P3",
       "P4", "P5", "P6", "P7", "P8", "P9", "S", "SKRIPSI"
     ];
 
-    // Web App Google Apps Script Integration URL (Tertanam Langsung)
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSskPkOhok3212Xle034dje1_VEG3_6e3ngGAdJPDXIzbVTByySxCwjuMBOau4BudsKw/exec";
+    // Web App Google Apps Script Integration URL (Tertanam)
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwH4CJG8Qk5zkXrXgva8W1HFV7OLb98gBG-v4TqKOJMtp27HTEbMP3iy5vufoX_dkRDhw/exec";
     
-    // Live Spreadsheet Published CSV Endpoint for direct reading
-    const SPREADSHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTbob6QC8QSd8o9Q5Ib76VxMG-4DZmc5RpYxpovYsXjT-Nvl69fdZxZ-rH2a2VvyaAawwuW9NZUcwUz/pub?gid=823395144&single=true&output=csv";
+    // Live Spreadsheet Published CSV Endpoint untuk Pembacaan Data
+    const SPREADSHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTbob6QC8QSd8o9Q5Ib76VxMG-4DZmc5RpYxpovYsXjT-Nvl69fdZxZ-rH2a2VvyaAawwuW9NZUcwUz/pub?output=csv";
 
     // Application State Storage
     let observations = [];
@@ -753,7 +557,7 @@ function doPost(e) {
     let videoDevices = [];
     let currentDeviceIndex = 0;
 
-    // Populates all dropdown menus with predefined options (Mata Kuliah and Offering)
+    // Populates dropdown menus
     function populateDropdowns() {
       const mkSelect = document.getElementById('matakuliah');
       const filterMkSelect = document.getElementById('rekap-filter-mk');
@@ -790,7 +594,7 @@ function doPost(e) {
       }
     }
 
-    // Sets default value for date and time inputs to current moment
+    // Default Date and Time
     function setDefaultDateTime() {
       const now = new Date();
       const year = now.getFullYear();
@@ -811,16 +615,16 @@ function doPost(e) {
       setDefaultDateTime();
       loadDataFromSheet();
 
-      // Set up periodic sync every 20 seconds for instant responsiveness
+      // Periodic sync every 20s
       setInterval(() => {
         const activeTab = document.querySelector('.tab-content:not(.hidden)');
         if (activeTab && (activeTab.id === 'rekap-tab' || activeTab.id === 'stats-tab')) {
-          loadDataFromSheet(true); // Silent background refresh
+          loadDataFromSheet(true);
         }
       }, 20000);
     });
 
-    // Helper function to parse CSV format
+    // CSV Parser helper
     function parseCSV(text) {
       const lines = [];
       let row = [];
@@ -860,7 +664,7 @@ function doPost(e) {
       return lines;
     }
 
-    // Load Live Data directly from Google Sheet with No-Cache & AppsScript Read Fallback
+    // Load Live Data from Spreadsheet
     async function loadDataFromSheet(isSilent = false) {
       const iconRekap = document.getElementById('refresh-icon-rekap');
       const iconStats = document.getElementById('refresh-icon-stats');
@@ -872,64 +676,42 @@ function doPost(e) {
 
       let fetchedData = null;
 
-      // Method 1: Try reading directly from Apps Script Web App (0 seconds cache delay)
       try {
-        const appsScriptRes = await fetch(APPS_SCRIPT_URL + '?action=read&t=' + Date.now(), {
-          method: 'GET',
+        const response = await fetch(SPREADSHEET_CSV_URL + '&t=' + Date.now() + '&r=' + Math.random(), {
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
         });
-        if (appsScriptRes.ok) {
-          const json = await appsScriptRes.json();
-          if (json && json.status === 'success' && Array.isArray(json.data)) {
-            fetchedData = json.data;
+        if (response.ok) {
+          const csvText = await response.text();
+          const rows = parseCSV(csvText);
+
+          const parsed = [];
+          if (rows.length > 1) {
+            for (let i = 1; i < rows.length; i++) {
+              const r = rows[i];
+              if (!r || r.length < 4 || (!r[2] && !r[3])) continue;
+
+              parsed.push({
+                id: i,
+                timestamp: r[0] || '',
+                email: r[1] || '',
+                tanggalJam: r[2] || '',
+                matakuliah: r[3] || '',
+                offering: r[4] || '',
+                q1: (r[5] || 'TIDAK').toUpperCase(),
+                q2: (r[6] || 'TIDAK').toUpperCase(),
+                q3: (r[7] || 'TIDAK').toUpperCase(),
+                foto: r[8] || '',
+                kendala: r[9] || '-'
+              });
+            }
           }
+          fetchedData = parsed;
         }
       } catch (err) {
-        // Apps Script GET disabled or blocked, fallback to direct CSV
+        console.warn("Koneksi Google Sheets langsung gagal:", err);
       }
 
-      // Method 2: Fallback to Published CSV with strict Cache-Busting
-      if (!fetchedData) {
-        try {
-          const response = await fetch(SPREADSHEET_CSV_URL + '&t=' + Date.now() + '&r=' + Math.random(), {
-            cache: 'no-store',
-            headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
-          });
-          if (response.ok) {
-            const csvText = await response.text();
-            const rows = parseCSV(csvText);
-
-            const parsed = [];
-            if (rows.length > 1) {
-              // Skip Header row (index 0)
-              for (let i = 1; i < rows.length; i++) {
-                const r = rows[i];
-                if (!r || r.length < 4 || (!r[2] && !r[3])) continue;
-
-                parsed.push({
-                  id: i,
-                  timestamp: r[0] || '',
-                  email: r[1] || '',
-                  tanggalJam: r[2] || '',
-                  matakuliah: r[3] || '',
-                  offering: r[4] || '',
-                  q1: (r[5] || 'TIDAK').toUpperCase(),
-                  q2: (r[6] || 'TIDAK').toUpperCase(),
-                  q3: (r[7] || 'TIDAK').toUpperCase(),
-                  foto: r[8] || '',
-                  kendala: r[9] || '-'
-                });
-              }
-            }
-            fetchedData = parsed;
-          }
-        } catch (err) {
-          console.warn("Koneksi Google Sheets langsung gagal:", err);
-        }
-      }
-
-      // Overwrite state completely to immediately reflect deletions/edits in Spreadsheet
       if (fetchedData !== null) {
         observations = fetchedData.reverse();
         saveLocalData();
@@ -966,7 +748,6 @@ function doPost(e) {
         loadDataFromSheet();
       }
 
-      // Stop camera if user switches away from form
       if (tabId !== 'form-tab') {
         stopCamera();
       }
@@ -977,7 +758,7 @@ function doPost(e) {
       menu.classList.toggle('hidden');
     }
 
-    // Photo source management
+    // Photo Source Switcher
     function setPhotoSource(source) {
       const btnUpload = document.getElementById('btn-src-upload');
       const btnCamera = document.getElementById('btn-src-camera');
@@ -1000,12 +781,13 @@ function doPost(e) {
       }
     }
 
+    // Handle File Selection with Client-Side Canvas Compression (Max 1280px)
     function handleFileSelect(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      if (file.size > 5 * 1024 * 1024) {
-        showToast("Ukuran foto maksimal 5MB", "error");
+      if (file.size > 10 * 1024 * 1024) {
+        showToast("Ukuran berkas asli terlalu besar (maksimal 10MB)", "error");
         return;
       }
 
@@ -1013,16 +795,31 @@ function doPost(e) {
       reader.onload = async function (e) {
         const img = new Image();
         img.onload = async function() {
+          const maxDim = 1280;
+          let w = img.width;
+          let h = img.height;
+
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+
           const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
+          canvas.width = w;
+          canvas.height = h;
           const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
+          ctx.drawImage(img, 0, 0, w, h);
 
           const geoStr = await getGeoLocation();
-          addPhotoWatermark(ctx, img.width, img.height, geoStr);
+          addPhotoWatermark(ctx, w, h, geoStr);
 
-          currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+          // Quality 0.75 results in a clean, lightweight payload (~150-250KB Base64)
+          currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.75);
           displayPhotoPreview(currentPhotoBase64);
         };
         img.src = e.target.result;
@@ -1043,14 +840,14 @@ function doPost(e) {
         if (videoDevices.length > 1 && videoDevices[currentDeviceIndex]) {
           constraints.video = { 
             deviceId: { exact: videoDevices[currentDeviceIndex].deviceId },
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
           };
         } else {
           constraints.video = { 
             facingMode: { ideal: currentFacingMode },
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
           };
         }
 
@@ -1058,7 +855,6 @@ function doPost(e) {
         const video = document.getElementById('camera-stream');
         video.srcObject = mediaStream;
 
-        // Auto-adapt layout on device rotation
         window.removeEventListener('orientationchange', handleOrientationChange);
         window.addEventListener('orientationchange', handleOrientationChange);
       } catch (err) {
@@ -1070,13 +866,7 @@ function doPost(e) {
           const video = document.getElementById('camera-stream');
           video.srcObject = mediaStream;
         } catch (e) {
-          try {
-            mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-            const video = document.getElementById('camera-stream');
-            video.srcObject = mediaStream;
-          } catch (finalErr) {
-            showToast("Tidak dapat mengakses kamera. Pastikan telah memberi izin.", "error");
-          }
+          showToast("Tidak dapat mengakses kamera. Pastikan telah memberi izin.", "error");
         }
       }
     }
@@ -1084,7 +874,6 @@ function doPost(e) {
     function handleOrientationChange() {
       const video = document.getElementById('camera-stream');
       if (video && video.srcObject) {
-        // Force refresh layout on screen tilt/rotate
         video.style.display = 'none';
         setTimeout(() => { video.style.display = 'block'; }, 50);
       }
@@ -1105,14 +894,13 @@ function doPost(e) {
       }
     }
 
-    // Helper to get GPS Geolocation from device with fallback and permission handling
+    // GPS Geolocation Handler
     async function getGeoLocation() {
       if (!navigator.geolocation) {
         return await getFallbackLocation();
       }
 
       return new Promise((resolve) => {
-        // Set fallback timer if browser dialog hangs or takes too long
         const timeoutId = setTimeout(async () => {
           resolve(await getFallbackLocation());
         }, 4000);
@@ -1124,11 +912,8 @@ function doPost(e) {
             const lng = position.coords.longitude.toFixed(5);
             resolve(`GPS: ${lat}, ${lng}`);
           },
-          async (err) => {
+          async () => {
             clearTimeout(timeoutId);
-            if (err.code === err.PERMISSION_DENIED) {
-              showToast("Akses GPS perangkat dibatasi. Menggunakan koordinat lokasi estimasi.", "error");
-            }
             resolve(await getFallbackLocation());
           },
           { enableHighAccuracy: false, timeout: 3500, maximumAge: 300000 }
@@ -1136,16 +921,12 @@ function doPost(e) {
       });
     }
 
-    // Fallback Geolocation using IP Service or Default Campus Coordinates
     async function getFallbackLocation() {
       try {
         const controller = new AbortController();
-        const timeoutSignal = setTimeout(() => controller.abort(), 2500);
+        const timeoutSignal = setTimeout(() => controller.abort(), 2000);
         
-        const res = await fetch('https://ipapi.co/json/', { 
-          cache: 'no-store',
-          signal: controller.signal 
-        });
+        const res = await fetch('https://ipapi.co/json/', { cache: 'no-store', signal: controller.signal });
         clearTimeout(timeoutSignal);
 
         if (res.ok) {
@@ -1157,21 +938,33 @@ function doPost(e) {
             return `GPS: ${lat}, ${lng} (${city})`;
           }
         }
-      } catch (e) {
-        // Fallback silently if API request fails or CORS is blocked
-      }
+      } catch (e) {}
       
-      // Default fallback coordinates (Universitas Negeri Malang)
       return `GPS: -7.96125, 112.61842 (Malang)`;
     }
 
+    // Capture Photo from Camera Stream with Max 1280px Scale & 0.75 JPEG Compression
     async function captureCameraPhoto() {
       const video = document.getElementById('camera-stream');
       const canvas = document.getElementById('camera-canvas');
       if (!video.srcObject) return;
 
-      const w = video.videoWidth || 640;
-      const h = video.videoHeight || 480;
+      const rawW = video.videoWidth || 1280;
+      const rawH = video.videoHeight || 720;
+      const maxDim = 1280;
+      let w = rawW;
+      let h = rawH;
+
+      if (w > maxDim || h > maxDim) {
+        if (w > h) {
+          h = Math.round((h * maxDim) / w);
+          w = maxDim;
+        } else {
+          w = Math.round((w * maxDim) / h);
+          h = maxDim;
+        }
+      }
+
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext('2d');
@@ -1180,13 +973,14 @@ function doPost(e) {
       const geoStr = await getGeoLocation();
       addPhotoWatermark(ctx, w, h, geoStr);
 
-      currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+      currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.75);
       displayPhotoPreview(currentPhotoBase64);
       stopCamera();
       document.getElementById('camera-container').classList.add('hidden');
       document.getElementById('camera-container').classList.remove('flex');
     }
 
+    // Watermark Renderer
     function addPhotoWatermark(ctx, w, h, geoStr = "GPS: -") {
       const now = new Date();
       const dateStr = String(now.getDate()).padStart(2, '0') + '/' + 
@@ -1205,15 +999,13 @@ function doPost(e) {
       const timeHash = (now.getTime()).toString(36).toUpperCase();
       const uniqueCode = `GKM-${yyyy}${mm}${dd}-${hh}${min}${ss}-${timeHash}`;
 
-      // Susun 2 baris seimbang agar ramah layar portrait HP
       const line1 = `Dokumentasi Observasi | ${dateStr} ${timeStr} WIB`;
       const line2 = `Terverifikasi GKM | ${geoStr} | Kode: ${uniqueCode}`;
 
-      // Hitung ukuran font dasar berdasarkan rasio gambar
       let fontSize = Math.max(10, Math.round(Math.min(w, h) * 0.026));
       ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
 
-      const maxAvailableWidth = w * 0.88; // Batas aman 88% dari lebar foto
+      const maxAvailableWidth = w * 0.88;
       let paddingX = fontSize * 0.6;
       let paddingY = fontSize * 0.45;
 
@@ -1221,7 +1013,6 @@ function doPost(e) {
       let w2 = ctx.measureText(line2).width;
       let maxTextW = Math.max(w1, w2);
 
-      // Iterative scaling loop: Turunkan font jika melebihi lebar aman foto HP portrait
       while ((maxTextW + paddingX * 2) > maxAvailableWidth && fontSize > 8) {
         fontSize -= 0.5;
         ctx.font = `600 ${fontSize}px 'Inter', sans-serif, Arial`;
@@ -1240,7 +1031,6 @@ function doPost(e) {
       const boxY = h - margin - boxHeight;
 
       ctx.save();
-      // Latar belakang kotak watermark semi-transparan
       ctx.fillStyle = 'rgba(15, 23, 42, 0.90)';
       if (typeof ctx.roundRect === 'function') {
         ctx.beginPath();
@@ -1250,11 +1040,9 @@ function doPost(e) {
         ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
       }
 
-      // Aksen garis biru brand di sisi kiri
       ctx.fillStyle = '#0284c7';
       ctx.fillRect(boxX, boxY, Math.max(3, fontSize * 0.2), boxHeight);
 
-      // Tuliskan teks 2 baris secara rapi
       ctx.fillStyle = '#ffffff';
       ctx.textBaseline = 'top';
       const textX = boxX + paddingX + (fontSize * 0.15);
@@ -1279,7 +1067,6 @@ function doPost(e) {
       document.getElementById('photo-file').value = "";
     }
 
-    // Helper to format timestamp MM/DD/YYYY HH:MM:SS
     function getFormattedTimestamp() {
       const now = new Date();
       const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -1291,11 +1078,10 @@ function doPost(e) {
       return `${mm}/${dd}/${yyyy} ${hh}:${min}:${ss}`;
     }
 
-    // Form Submit Handler
+    // Submit Handler
     async function handleFormSubmit(e) {
       e.preventDefault();
 
-      // Validasi wajib unggah/ambil foto
       if (!currentPhotoBase64) {
         showToast("Bukti foto / dokumentasi perkuliahan wajib diambil atau diunggah!", "error");
         return;
@@ -1304,7 +1090,7 @@ function doPost(e) {
       const submitBtn = document.getElementById('submit-btn');
       const originalBtnHTML = submitBtn.innerHTML;
       submitBtn.disabled = true;
-      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Menyimpan...</span>`;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Menyimpan & Mengunggah ke Drive...</span>`;
 
       const email = document.getElementById('email').value.trim();
       const tanggal = document.getElementById('tanggal').value;
@@ -1320,7 +1106,7 @@ function doPost(e) {
       const newRecord = {
         id: Date.now(),
         timestamp: timestamp,
-        email: email, // saved in data, hidden in table display and export
+        email: email,
         tanggalJam: `${tanggal} ${jam}`,
         matakuliah: matakuliah,
         offering: offering,
@@ -1331,73 +1117,58 @@ function doPost(e) {
         kendala: kendala || '-'
       };
 
-      // Save locally
       observations.unshift(newRecord);
       saveLocalData();
 
-      // Silent push to Apps Script backend if configured
       try {
-        fetch(APPS_SCRIPT_URL, {
+        await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newRecord)
-        }).catch(() => {});
-      } catch (err) {
-        // silent fallback
-      }
+        });
+      } catch (err) {}
 
-      // Reset Form UI
       document.getElementById('observation-form').reset();
       removePhoto();
       setDefaultDateTime();
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalBtnHTML;
 
-      showToast("Data observasi berhasil dikirim ke Google Spreadsheet!", "success");
+      showToast("Data observasi dan foto berhasil dikirim ke Google Drive & Spreadsheet!", "success");
 
-      // Reload live data from spreadsheet after brief delay for Google Apps Script to commit row
       setTimeout(() => {
         loadDataFromSheet();
         switchTab('rekap-tab');
       }, 1500);
     }
 
-    // Local Data Storage Management
+    // Storage Management
     function saveLocalData() {
       try {
-        // Filter out large Base64 photo strings to stay within localStorage 5MB limit
-        const lightweightData = observations.slice(0, 50).map(item => {
+        const lightweightData = observations.slice(0, 30).map(item => {
           const cleanItem = { ...item };
           if (cleanItem.foto && cleanItem.foto.length > 300) {
-            cleanItem.foto = ''; // Keep photo in active memory/Google Sheets, omit from localStorage
+            cleanItem.foto = '';
           }
           return cleanItem;
         });
         localStorage.setItem('obs_pembelajaran_data', JSON.stringify(lightweightData));
       } catch (e) {
-        // Fallback gracefully if browser storage quota is completely full
-        try {
-          localStorage.removeItem('obs_pembelajaran_data');
-        } catch (err) {}
+        try { localStorage.removeItem('obs_pembelajaran_data'); } catch (err) {}
       }
     }
 
     function loadLocalData() {
       const stored = localStorage.getItem('obs_pembelajaran_data');
       if (stored) {
-        try {
-          observations = JSON.parse(stored);
-        } catch (e) {
-          observations = [];
-        }
+        try { observations = JSON.parse(stored); } catch (e) { observations = []; }
       } else {
-        // Strictly empty initial state as requested by user
         observations = [];
       }
     }
 
-    // Render Table (Hides Email column!)
+    // Render Table
     function renderRekapTable() {
       const tbody = document.getElementById('rekap-table-body');
       const emptyState = document.getElementById('rekap-empty-state');
@@ -1428,11 +1199,9 @@ function doPost(e) {
         let photoTd = `<span class="text-slate-400 text-xs">-</span>`;
         if (item.foto) {
           if (item.foto.startsWith('http')) {
-            // URL Google Drive
-            photoTd = `<a href="${item.foto}" target="_blank" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>Buka Foto</span></a>`;
+            photoTd = `<a href="${item.foto}" target="_blank" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>Buka di Drive</span></a>`;
           } else if (item.foto.startsWith('data:image')) {
-            // Base64 lokal / temporer
-            photoTd = `<button onclick="previewPhotoModal('${item.foto}')" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1"><i class="fa-solid fa-image"></i><span>Lihat</span></button>`;
+            photoTd = `<button onclick="previewPhotoModal('${item.foto}')" class="text-sky-600 hover:text-sky-800 font-semibold text-xs inline-flex items-center space-x-1 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200"><i class="fa-solid fa-image"></i><span>Lihat Foto</span></button>`;
           }
         }
 
@@ -1451,14 +1220,13 @@ function doPost(e) {
       });
     }
 
-    // Render Real-Time Statistics (No dummy data!)
+    // Render Stats
     function renderStats() {
       const total = observations.length;
       document.getElementById('stat-total-count').textContent = total;
       document.getElementById('stat-badge-total').textContent = `${total} Responden`;
 
       if (total === 0) {
-        // Zero state
         document.getElementById('stat-q1-percent').textContent = '0%';
         document.getElementById('stat-q2-percent').textContent = '0%';
         document.getElementById('stat-q3-percent').textContent = '0%';
@@ -1518,7 +1286,6 @@ function doPost(e) {
       updateBar('bar-q2-ya', 'bar-q2-tidak', q2Percent, 100 - q2Percent);
       updateBar('bar-q3-ya', 'bar-q3-tidak', q3Percent, 100 - q3Percent);
 
-      // Render Course Distribution list
       const courseListEl = document.getElementById('course-stats-list');
       courseListEl.innerHTML = '';
 
@@ -1552,7 +1319,7 @@ function doPost(e) {
       tidakEl.textContent = pctTidak > 10 ? `${pctTidak}%` : '';
     }
 
-    // Export Rekap to .doc (HTML blob technique) - Hidden email requirement respected!
+    // Export Document Functions
     function downloadRecapDoc() {
       if (observations.length === 0) {
         showToast("Tidak ada data observasi untuk diunduh.", "error");
@@ -1561,6 +1328,10 @@ function doPost(e) {
 
       let tableRows = '';
       observations.forEach((item, i) => {
+        let photoCell = '-';
+        if (item.foto && item.foto.startsWith('http')) {
+          photoCell = `<a href="${item.foto}">${item.foto}</a>`;
+        }
         tableRows += `
           <tr>
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${i + 1}</td>
@@ -1570,6 +1341,7 @@ function doPost(e) {
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${item.q1}</td>
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${item.q2}</td>
             <td style="text-align:center; padding:8px; border:1px solid #cbd5e1;">${item.q3}</td>
+            <td style="padding:8px; border:1px solid #cbd5e1; text-align:center;">${photoCell}</td>
             <td style="padding:8px; border:1px solid #cbd5e1;">${escapeHtml(item.kendala)}</td>
           </tr>
         `;
@@ -1584,7 +1356,7 @@ function doPost(e) {
             body { font-family: 'Calibri', 'Arial', sans-serif; margin: 20px; }
             h2 { color: #0369a1; text-align: center; margin-bottom: 5px; }
             p.sub { text-align: center; color: #64748b; font-size: 12px; margin-top: 0; }
-            table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 15px; }
             th { background-color: #0284c7; color: #ffffff; padding: 10px; border: 1px solid #0284c7; text-align: center; }
           </style>
         </head>
@@ -1595,13 +1367,14 @@ function doPost(e) {
             <thead>
               <tr>
                 <th style="width:5%;">No</th>
-                <th style="width:15%;">Tanggal & Jam</th>
-                <th style="width:30%;">Nama Mata Kuliah</th>
-                <th style="width:10%;">Offering</th>
-                <th style="width:10%;">Sesuai Jadwal</th>
-                <th style="width:10%;">Tepat Waktu (&lt;15m)</th>
-                <th style="width:10%;">Sesuai RPS</th>
-                <th style="width:20%;">Kendala / Catatan</th>
+                <th style="width:12%;">Tanggal & Jam</th>
+                <th style="width:25%;">Nama Mata Kuliah</th>
+                <th style="width:8%;">Offering</th>
+                <th style="width:8%;">Sesuai Jadwal</th>
+                <th style="width:8%;">Tepat Waktu</th>
+                <th style="width:8%;">Sesuai RPS</th>
+                <th style="width:12%;">URL Foto Drive</th>
+                <th style="width:14%;">Kendala / Catatan</th>
               </tr>
             </thead>
             <tbody>
@@ -1615,7 +1388,6 @@ function doPost(e) {
       downloadBlobAsDoc(htmlContent, 'Rekap_Observasi_Pembelajaran.doc');
     }
 
-    // Export Statistik to .doc
     function downloadStatsDoc() {
       const total = observations.length;
       if (total === 0) {
@@ -1642,8 +1414,7 @@ function doPost(e) {
           <style>
             body { font-family: 'Calibri', 'Arial', sans-serif; margin: 25px; line-height: 1.5; }
             h2 { color: #075985; border-bottom: 2px solid #0284c7; padding-bottom: 5px; }
-            .box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin-bottom: 15px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
             th { background-color: #0f172a; color: #ffffff; padding: 8px; border: 1px solid #0f172a; }
             td { padding: 8px; border: 1px solid #cbd5e1; }
           </style>
@@ -1653,7 +1424,7 @@ function doPost(e) {
           <p><b>Total Responden / Perkuliahan Diobservasi:</b> ${total} Kelas</p>
           <p><b>Tanggal Laporan Generated:</b> ${new Date().toLocaleString('id-ID')}</p>
           
-          <h3>1. Ringkasan Keterlaksanaan Indikator Utama</h3>
+          <h3>Ringkasan Keterlaksanaan Indikator Utama</h3>
           <table>
             <thead>
               <tr>
@@ -1692,9 +1463,7 @@ function doPost(e) {
     }
 
     function downloadBlobAsDoc(content, fileName) {
-      const blob = new Blob(['\ufeff', content], {
-        type: 'application/msword'
-      });
+      const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -1717,25 +1486,11 @@ function doPost(e) {
 
       container.appendChild(toast);
 
-      setTimeout(() => {
-        toast.classList.remove('translate-y-2', 'opacity-0');
-      }, 10);
-
+      setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
       setTimeout(() => {
         toast.classList.add('opacity-0');
         setTimeout(() => toast.remove(), 300);
       }, 3500);
-    }
-
-    function copyAppsScript() {
-      const code = document.getElementById('apps-script-code').innerText;
-      const textarea = document.createElement('textarea');
-      textarea.value = code;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-      showToast("Kode Apps Script berhasil disalin ke clipboard!", "success");
     }
 
     function previewPhotoModal(src) {
